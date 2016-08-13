@@ -1,4 +1,3 @@
-# coding=utf-8
 import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
