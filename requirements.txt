@@ -1,2 +1,4 @@
-nose
 scrapy
+configobj
+htmllaundry
+nose
