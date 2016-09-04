@@ -1,18 +1,15 @@
 # coding=utf-8
-import os
 import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
-from configobj import ConfigObj
 from scrapper.util.extractor import Extractor
+
 
 class NederwoonSpider(scrapy.Spider):
     name = 'nederwoonspider'
-    config = ConfigObj(os.getcwd() + '/config.ini')
-    start_urls = [('http://www.nederwoon.nl/huurwoningen/{0}?numberviews=1000&rows=1000&q='.format(config['queryPlace']))]
 
-    def getConfig(self):
-        return ConfigObj(os.getcwd() + '/config.ini')
+    def __init__(self, queryCity='amersfoort'):
+        self.start_urls = [('http://www.nederwoon.nl/huurwoningen/{0}?numberviews=1000&rows=1000&q='.format(queryCity))]
 
     def parse(self, response):
         pageSelector = Selector(response)
