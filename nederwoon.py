@@ -4,8 +4,7 @@ import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
 from configobj import ConfigObj
-from htmllaundry import strip_markup
-
+from scrapper.util.extractor import Extractor
 
 class NederwoonSpider(scrapy.Spider):
     name = 'nederwoonspider'
@@ -22,7 +21,7 @@ class NederwoonSpider(scrapy.Spider):
 
         for index, object in enumerate(objects):
             #Determine if the object is the right type
-            type = str(self.extractString(object, 'div[data-object-kenmerk="type"]')).lower()
+            type = str(Extractor.string(object, 'div[data-object-kenmerk="type"]')).lower()
             if type != 'appartement' and type != 'kamer' and type != "studio":
                 continue
 
@@ -34,11 +33,11 @@ class NederwoonSpider(scrapy.Spider):
             yield scrapy.Request(domain + path, self.parse_object)
 
     def parse_object(self, response):
-        street = self.extractString(response, '[data-object-kenmerk="straatnaam"]')
-        volume = self.extractString(response, '[data-object-kenmerk="woonoppervlakte"]').replace('m2', '')
-        rooms = self.extractString(response, '[data-object-kenmerk="slaapkamers"]')
-        availability = self.extractString(response, '[data-object-kenmerk="beschikbaarheid"]')
-        price = self.extractEurosAsFloat(response, '.price_red')
+        street = Extractor.string(response, '[data-object-kenmerk="straatnaam"]')
+        volume = Extractor.string(response, '[data-object-kenmerk="woonoppervlakte"]').replace('m2', '')
+        rooms = Extractor.string(response, '[data-object-kenmerk="slaapkamers"]')
+        availability = Extractor.string(response, '[data-object-kenmerk="beschikbaarheid"]')
+        price = Extractor.eurosAsFloat(response, '.price_red')
 
         yield {
             'street': street,
@@ -48,17 +47,3 @@ class NederwoonSpider(scrapy.Spider):
             'price': price,
             'reference': response.url
         }
-
-    def extractEurosAsFloat(self, html, cssSelector):
-        data = self.extractString(html, cssSelector)
-        data = data.replace('.', '').replace(',', '.').replace('€', '')
-        return float(data)
-
-    def extractString(self, html, cssSelector):
-        if not isinstance(html, Selector):
-            html = Selector(html)
-
-        data = html.css(cssSelector).extract_first()
-        data = str(strip_markup(data).encode('utf-8'))
-        return data.strip()
-
