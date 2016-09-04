@@ -22,12 +22,13 @@ class NederwoonSpider(scrapy.Spider):
 
         for index, object in enumerate(objects):
             #Determine if the object is the right type
-            type = str(self.extractString(object, 'div[data-object-kenmerk="type"]'))
-            if type != 'appartement' and type != 'kamer':
+            type = str(self.extractString(object, 'div[data-object-kenmerk="type"]')).lower()
+            if type != 'appartement' and type != 'kamer' and type != "studio":
                 continue
 
             # Parse Path and send another request
-            path = object.css('.btn_green').re_first(r'href=\'\s*(.*)\?sighting=true')
+            # path = object.css('.btn_green').re_first(r'href=\'\s*(.*)\?sighting=true')
+            path = object.css('a.green.underlined').re_first(r'href="\s*(.*)\" class')
             parsed_uri = urlparse(response.url)
             domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
             yield scrapy.Request(domain + path, self.parse_object)
