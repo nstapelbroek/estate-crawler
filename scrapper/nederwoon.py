@@ -2,11 +2,11 @@
 import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
-from scrapper.util.extractor import Extractor
-
+from util.extractor import Extractor
 
 class NederwoonSpider(scrapy.Spider):
     name = 'nederwoonspider'
+    allowed_domains = ["www.nederwoon.nl"]
 
     def __init__(self, queryCity='amersfoort'):
         self.start_urls = [('http://www.nederwoon.nl/huurwoningen/{0}?numberviews=1000&rows=1000&q='.format(queryCity))]
