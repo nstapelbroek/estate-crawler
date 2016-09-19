@@ -6,7 +6,7 @@ from util.extractor import Extractor
 from util.structure import Structure
 
 
-class NederwoonSpider(scrapy.Spider):
+class DomicaSpider(scrapy.Spider):
     name = 'domicaspider'
     allowed_domains = ["www.domica.nl"]
 
