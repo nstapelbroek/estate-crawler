@@ -33,9 +33,9 @@ class NederwoonSpider(scrapy.Spider):
 
     def parse_object(self, response):
         cityStreet = Extractor.string(response, '[data-object-kenmerk="straatnaam"]').split(', ')
-        volume = Extractor.string(response, '[data-object-kenmerk="woonoppervlakte"]').replace('m2', '')
+        volume = Extractor.volume(response, '[data-object-kenmerk="woonoppervlakte"]')
         rooms = Extractor.string(response, '[data-object-kenmerk="slaapkamers"]')
-        price = Extractor.eurosAsFloat(response, '.price_red')
+        price = Extractor.euro(response, '.price_red')
 
         yield {
             'street': cityStreet[0],

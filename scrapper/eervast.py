@@ -3,6 +3,7 @@ import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
 from util.extractor import Extractor
+from util.structure import Structure
 from scrapy.http import FormRequest
 
 '''
@@ -61,30 +62,12 @@ class EervastSpider(scrapy.Spider):
             meta = {'street': street, 'city': city}
             yield scrapy.Request(domain + path, self.parse_object, 'GET', None, None, None, meta)
 
-    # The eervast pages are build like a defintion list usign divs or tables.
-    # By picking the next sibling element of the matched content we can extract specific information
-    def find_in_defintion_elements(self, html, targetElement, targetText):
-        if not isinstance(html, Selector):
-            html = Selector(html)
-
-        matchedIndex = 'not found'
-        elements = html.css(targetElement)
-        elements.extract()
-
-        for index, element in enumerate(elements):
-            text = Extractor.string(element, '*');
-            if index == matchedIndex:
-                return text
-
-            if text.lower() == targetText.lower():
-                matchedIndex = index + 1
-
     def parse_object(self, response):
-        type = self.find_in_defintion_elements(response, '.house-info div', 'Type woning')
-        volume = self.find_in_defintion_elements(response, '.house-info div', 'Woonoppervlak').split('m')[0]
-        rooms = self.find_in_defintion_elements(response, '.house-info div', 'Aantal kamers')
-        price = Extractor.eurosAsFloat(response, '.house-info div:nth-child(2)')
-        availability = self.find_in_defintion_elements(response, '#tab-1 tr td', 'Aanvaarding')
+        type = Structure.find_in_definition(response, '.house-info div', 'Type woning')
+        volume = Extractor.volume(Structure.find_in_definition(response, '.house-info div', 'Woonoppervlak'))
+        rooms = Structure.find_in_definition(response, '.house-info div', 'Aantal kamers')
+        price = Extractor.euro(response, '.house-info div:nth-child(2)')
+        availability = Structure.find_in_definition(response, '#tab-1 tr td', 'Aanvaarding')
 
         yield {
             'street': response.meta['street'],
