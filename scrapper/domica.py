@@ -68,8 +68,8 @@ class DomicaSpider(scrapy.Spider):
             price = Extractor.euro(price.split('-')[0])
 
         yield {
-            'street': city,
-            'city': street,
+            'street': street,
+            'city': city,
             'volume': volume,
             'rooms': rooms,
             'availability': availability,

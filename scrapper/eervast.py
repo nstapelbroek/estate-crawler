@@ -1,10 +1,10 @@
 # coding=utf-8
 import scrapy
 from urlparse import urlparse
+from scrapy.http import FormRequest
 from scrapy.selector import Selector
 from util.extractor import Extractor
 from util.structure import Structure
-from scrapy.http import FormRequest
 
 '''
 Eervast is an Amersfoort specific real estate agency, no queryCity parameter will be used
