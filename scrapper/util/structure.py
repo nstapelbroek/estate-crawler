@@ -1,6 +1,6 @@
 # coding=utf-8
 from scrapy.selector import Selector
-from scrapper.util.extractor import Extractor
+from util.extractor import Extractor
 
 
 class Structure:
@@ -20,5 +20,3 @@ class Structure:
 
             if text.lower() == targetText.lower():
                 matchedIndex = index + 1
-
-
