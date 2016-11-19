@@ -19,6 +19,9 @@ class Extractor:
             html = Selector(html)
 
         data = html.css(cssSelector).extract_first()
+        if data is None:
+            return str('')
+
         data = str(strip_markup(data).encode('utf-8'))
         return data.strip()
 
