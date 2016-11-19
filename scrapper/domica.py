@@ -28,7 +28,7 @@ class DomicaSpider(scrapy.Spider):
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
             objectStatus = str(Extractor.string(object, '.object_status')).lower()
-            if objectStatus == 'VERHUURD' or objectStatus == 'Verhuurd':
+            if objectStatus == '' or objectStatus == 'verhuurd':
                 continue
 
             # Parse Path and send another request
