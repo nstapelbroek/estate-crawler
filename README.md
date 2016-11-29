@@ -11,3 +11,12 @@ This project aims to relieve some pain by giving you insights of the
 offers at several agencies. By collecting and comparing this data, 
 you can pick an agency that is best suited for your needs. 
 Saving you time and potentially money.
+
+## Quick start
+You can run the estate crawler by executing the crawler.py file.
+
+```bash
+python ./crawler.py
+```
+
+By default, this will output all results to a `results.json` file in the build folder

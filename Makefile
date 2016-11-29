@@ -1,4 +1,4 @@
-.PHONY: build init test
+.PHONY: build init run
 
 # Variables
 MAKEPATH := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -8,11 +8,8 @@ PROJECTNAME=nstapelbroek/estate-crawler
 init:
 	pip install -r requirements.txt
 
-test:
-	nosetests tests
-
 build:
-	sudo docker build --tag $(PROJECTNAME) --file ./dev/docker/Dockerfile .
+	sudo docker build --tag $(PROJECTNAME) --file $(PWD)/dev/docker/Dockerfile .
 
 run:
 	python ./crawler.py
