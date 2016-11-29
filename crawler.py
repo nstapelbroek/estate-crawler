@@ -9,8 +9,8 @@ from scrapper.spider.nederwoon import NederwoonSpider
 
 configure_logging()
 settings = get_project_settings()
-settings.overrides['FEED_FORMAT'] = 'jsonlines'
-settings.overrides['FEED_URI'] = 'build/result.json'
+settings.set('FEED_FORMAT', 'jsonlines')
+settings.set('FEED_URI', 'build/result.json')
 runner = CrawlerRunner(settings)
 
 @defer.inlineCallbacks
