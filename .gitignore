@@ -127,5 +127,5 @@ fabric.properties
 .Trash-*
 
 # Project specific
-test.json
-notes.txt
+build/result.json
+build/notes.txt
