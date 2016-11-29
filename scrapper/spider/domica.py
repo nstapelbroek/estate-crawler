@@ -2,8 +2,8 @@
 import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
-from util.extractor import Extractor
-from util.structure import Structure
+from scrapper.util.extractor import Extractor
+from scrapper.util.structure import Structure
 
 
 class DomicaSpider(scrapy.Spider):

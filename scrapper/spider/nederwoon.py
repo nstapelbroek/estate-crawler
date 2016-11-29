@@ -2,7 +2,7 @@
 import scrapy
 from urlparse import urlparse
 from scrapy.selector import Selector
-from util.extractor import Extractor
+from scrapper.util.extractor import Extractor
 
 class NederwoonSpider(scrapy.Spider):
     name = 'nederwoonspider'

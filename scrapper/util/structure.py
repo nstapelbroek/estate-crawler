@@ -1,6 +1,6 @@
 # coding=utf-8
 from scrapy.selector import Selector
-from util.extractor import Extractor
+from scrapper.util.extractor import Extractor
 
 
 class Structure:
