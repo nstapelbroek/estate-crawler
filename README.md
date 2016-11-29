@@ -16,7 +16,7 @@ Saving you time and potentially money.
 You can run the estate crawler by executing the crawler.py file.
 
 ```bash
-python ./crawler.py
+./crawler.py
 ```
 
 By default, this will output all results to a `results.json` file in the build folder
