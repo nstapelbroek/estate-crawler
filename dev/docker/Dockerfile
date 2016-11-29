@@ -1,5 +1,6 @@
 FROM alpine:3.4
 
+# Based on: https://github.com/jfloff/alpine-python/blob/master/2.7/slim/Dockerfile
 MAINTAINER Nico Stapelbroek <nstapelbroek@gmail.com>
 
 # Install needed packages.
@@ -41,6 +42,7 @@ RUN echo \
   && pip install -r /tmp/requirements.txt \
   && echo \
 
+# Install the crawler
 WORKDIR /app
 ADD . .
 
