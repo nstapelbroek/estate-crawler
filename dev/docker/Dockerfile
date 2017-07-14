@@ -45,5 +45,6 @@ RUN echo \
 # Install the crawler
 WORKDIR /app
 ADD . .
+ADD ./dev/docker/entrypoint.sh /app/entrypoint.sh
 
 CMD ["python", "crawler.py"]
