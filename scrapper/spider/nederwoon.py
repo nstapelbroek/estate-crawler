@@ -44,6 +44,6 @@ class NederwoonSpider(scrapy.Spider):
             'rooms': rooms,
             'availability': response.meta['Availability'],
             'type': response.meta['Type'],
-            'price': price,
+            'pricePerMonth': price,
             'reference': response.url
         }

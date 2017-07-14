@@ -76,6 +76,6 @@ class EervastSpider(scrapy.Spider):
             'rooms': rooms,
             'availability': availability,
             'type': type,
-            'price': price,
+            'pricePerMonth': price,
             'reference': response.url
         }
