@@ -29,12 +29,16 @@ class DomicaSpider(scrapy.Spider):
             if objectStatus == 'verhuurd':
                 continue
 
+            # Pass the availability from the overview, since it's listed in DD-MM-YYYY format on the overview page
+            objectAvailibility = str(Extractor.string(object, '.object_availability > span'))
+            meta = {'availability': objectAvailibility}
+
             # Parse Path and send another request
             path = object.css('div.datacontainer > a').re_first(r'href="\s*(.*)\"')
             parsed_uri = urlparse(response.url)
             domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
 
-            yield scrapy.Request(domain + path, self.parse_object)
+            yield scrapy.Request(domain + path, self.parse_object, 'GET', None, None, None, meta)
 
     def parse_object(self, response):
         adress = Extractor.string(response, '.address').split(' ')
@@ -48,12 +52,6 @@ class DomicaSpider(scrapy.Spider):
         rooms = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Aantal kamers')
         if rooms is not None and isinstance(rooms, basestring):
             rooms = rooms.split(' (w')[0]
-
-        availability = Structure.find_in_definition(
-            response,
-            'table.table-striped.feautures tr td',
-            'Beschikbaar vanaf'
-        )
 
         type = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Type object')
         if type is not None and isinstance(type, basestring):
@@ -70,7 +68,7 @@ class DomicaSpider(scrapy.Spider):
             'city': city,
             'volume': volume,
             'rooms': rooms,
-            'availability': availability,
+            'availability': response.meta['availability'],
             'type': type,
             'pricePerMonth': price,
             'reference': response.url
