@@ -26,13 +26,13 @@ class DomicaSpider(scrapy.Spider):
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
             objectStatus = str(Extractor.string(object, '.object_status')).lower()
-            if objectStatus == '' or objectStatus == 'verhuurd':
+            if objectStatus == 'verhuurd':
                 continue
 
             # Parse Path and send another request
             path = object.css('div.datacontainer > a').re_first(r'href="\s*(.*)\"')
             parsed_uri = urlparse(response.url)
-            domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+            domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
 
             yield scrapy.Request(domain + path, self.parse_object)
 
