@@ -21,9 +21,11 @@ runner = CrawlerRunner(settings)
 
 @defer.inlineCallbacks
 def crawl():
-    yield runner.crawl(DomicaSpider)
     yield runner.crawl(EervastSpider)
-    yield runner.crawl(NederwoonSpider)
+    yield runner.crawl(DomicaSpider, queryCity='Amersfoort')
+    yield runner.crawl(DomicaSpider, queryCity='Arnhem')
+    yield runner.crawl(NederwoonSpider, queryCity='Amersfoort')
+    yield runner.crawl(NederwoonSpider, queryCity='Arnhem')
     reactor.stop()
 
 

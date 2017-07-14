@@ -53,7 +53,7 @@ class EervastSpider(scrapy.Spider):
             # Parse Path and send another request
             path = object.css('.house-button a').re_first(r'href="\s*(.*)\"')
             parsed_uri = urlparse(response.url)
-            domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
+            domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
 
             # Extracting the street is a lot easier in the overview page, so we'll pass it into the meta
             street = Extractor.string(object, '.home-house-info h2')
