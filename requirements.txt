@@ -2,3 +2,4 @@ scrapy
 configobj
 htmllaundry
 nose
+requests
