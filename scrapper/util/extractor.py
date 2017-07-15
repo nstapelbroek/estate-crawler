@@ -7,7 +7,18 @@ class Extractor:
     @staticmethod
     def euro(html, cssSelector='*'):
         data = Extractor.string(html, cssSelector)
+
+        # Flip dot and comma, remove euro sign
         data = data.replace('.', '').replace(',', '.').replace('€', '')
+
+        # We remove other words
+        words = data.strip().split(' ')
+        data = words[0]
+
+        # If we created a string ending with a . append a zero so float conversion is predictable
+        if(data.endswith('.')):
+            data += '0'
+
         return float(data)
 
     @staticmethod
@@ -28,5 +39,14 @@ class Extractor:
     @staticmethod
     def volume(html, cssSelector='*'):
         string = Extractor.string(html, cssSelector)
+
+        # Flip dot and comma, remove square meters from string
         volume_string = string.split('m')[0]
-        return float(volume_string.strip())
+        volume_string = volume_string.replace('.', '').replace(',', '.')
+
+        # If we created a string ending with a . append a zero so float conversion is predictable
+        volume_string.strip()
+        if(volume_string.endswith('.')):
+            volume_string += '0'
+
+        return float(volume_string)
