@@ -77,5 +77,6 @@ class EervastSpider(scrapy.Spider):
             'availability': availability,
             'type': type,
             'pricePerMonth': price,
-            'reference': response.url
+            'reference': response.url,
+            'estateAgent': 'Eervast'
         }

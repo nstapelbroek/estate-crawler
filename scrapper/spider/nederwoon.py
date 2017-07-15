@@ -4,6 +4,7 @@ from urlparse import urlparse
 from scrapy.selector import Selector
 from scrapper.util.extractor import Extractor
 
+
 class NederwoonSpider(scrapy.Spider):
     name = 'nederwoonspider'
     allowed_domains = ["www.nederwoon.nl"]
@@ -45,5 +46,6 @@ class NederwoonSpider(scrapy.Spider):
             'availability': response.meta['Availability'],
             'type': response.meta['Type'],
             'pricePerMonth': price,
-            'reference': response.url
+            'reference': response.url,
+            'estateAgent': 'NederWoon'
         }

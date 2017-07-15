@@ -72,5 +72,6 @@ class DomicaSpider(scrapy.Spider):
             'availability': response.meta['availability'],
             'type': type,
             'pricePerMonth': price,
-            'reference': response.url
+            'reference': response.url,
+            'estateAgent': 'Domica'
         }
