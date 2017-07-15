@@ -28,8 +28,14 @@ def crawl():
     yield runner.crawl(EervastSpider)
     yield runner.crawl(DomicaSpider, queryCity='Amersfoort')
     yield runner.crawl(DomicaSpider, queryCity='Arnhem')
+    yield runner.crawl(DomicaSpider, queryCity='Ede')
+    yield runner.crawl(DomicaSpider, queryCity='Utrecht')
+    yield runner.crawl(DomicaSpider, queryCity='Nijmegen')
     yield runner.crawl(NederwoonSpider, queryCity='Amersfoort')
     yield runner.crawl(NederwoonSpider, queryCity='Arnhem')
+    yield runner.crawl(NederwoonSpider, queryCity='Ede')
+    yield runner.crawl(NederwoonSpider, queryCity='Utrecht')
+    yield runner.crawl(NederwoonSpider, queryCity='Nijmegen')
     reactor.stop()
 
 
