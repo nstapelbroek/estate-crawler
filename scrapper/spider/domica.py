@@ -41,9 +41,10 @@ class DomicaSpider(scrapy.Spider):
             yield scrapy.Request(domain + path, self.parse_object, 'GET', None, None, None, meta)
 
     def parse_object(self, response):
-        adress = Extractor.string(response, '.address').split(' ')
-        street = adress[0][0:-1]
-        city = adress[(len(adress) - 1)]
+        address_heading = Extractor.string(response, '.address').split(',')
+        street = address_heading[0]
+        postcode_and_city = address_heading[1].split(' ')
+        city = postcode_and_city[(len(postcode_and_city) - 1)]
 
         volume = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Gebruiksoppervlakte wonen')
         if volume is not None and isinstance(volume, basestring):
