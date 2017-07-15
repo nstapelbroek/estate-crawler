@@ -28,4 +28,5 @@ class Extractor:
     @staticmethod
     def volume(html, cssSelector='*'):
         string = Extractor.string(html, cssSelector)
-        return string.split('m')[0]
+        volume_string = string.split('m')[0]
+        return float(volume_string.strip())
