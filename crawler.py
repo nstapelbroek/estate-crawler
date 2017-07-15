@@ -5,6 +5,7 @@ from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 from scrapper.spider.domica import DomicaSpider
 from scrapper.spider.eervast import EervastSpider
+from scrapper.spider.eentweedriewonen import EenTweeDrieWonenSpider
 from scrapper.spider.nederwoon import NederwoonSpider
 
 configure_logging()
@@ -15,7 +16,6 @@ settings.set('CONCURRENT_REQUESTS', '8')
 settings.set('CONCURRENT_REQUESTS_PER_DOMAIN', '3')
 settings.set('FEED_FORMAT', 'jsonlines')
 settings.set('FEED_URI', 'build/result.json')
-settings.set('COOKIES_ENABLED', False)
 
 # Want to send your crawler results to an external API? uncomment these lines below
 # settings.set('ITEM_PIPELINES', {'scrapper.pipeline.api.Api': 300})
@@ -29,13 +29,18 @@ def crawl():
     yield runner.crawl(DomicaSpider, queryCity='Amersfoort')
     yield runner.crawl(DomicaSpider, queryCity='Arnhem')
     yield runner.crawl(DomicaSpider, queryCity='Ede')
-    yield runner.crawl(DomicaSpider, queryCity='Utrecht')
     yield runner.crawl(DomicaSpider, queryCity='Nijmegen')
+    yield runner.crawl(DomicaSpider, queryCity='Utrecht')
     yield runner.crawl(NederwoonSpider, queryCity='Amersfoort')
     yield runner.crawl(NederwoonSpider, queryCity='Arnhem')
     yield runner.crawl(NederwoonSpider, queryCity='Ede')
-    yield runner.crawl(NederwoonSpider, queryCity='Utrecht')
     yield runner.crawl(NederwoonSpider, queryCity='Nijmegen')
+    yield runner.crawl(NederwoonSpider, queryCity='Utrecht')
+    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Amersfoort')
+    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Arnhem')
+    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Ede')
+    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Nijmegen')
+    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Utrecht')
     reactor.stop()
 
 
