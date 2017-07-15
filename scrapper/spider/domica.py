@@ -45,7 +45,7 @@ class DomicaSpider(scrapy.Spider):
         street = adress[0][0:-1]
         city = adress[(len(adress) - 1)]
 
-        volume = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Perceeloppervlakte')
+        volume = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Gebruiksoppervlakte wonen')
         if volume is not None and isinstance(volume, basestring):
             volume = Extractor.volume(volume)
 
