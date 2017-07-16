@@ -23,7 +23,7 @@ class NederwoonSpider(scrapy.Spider):
             if type != 'appartement' and type != 'kamer' and type != "studio":
                 continue
 
-            # Parse Path and send another request
+            # Extract the request patch from a button and rebuild the follow up url
             path = object.css('a.green.underlined').re_first(r'href="\s*(.*)\" class')
             parsed_uri = urlparse(response.url)
             domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)

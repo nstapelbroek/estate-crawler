@@ -1,6 +1,5 @@
 # coding=utf-8
 import scrapy
-from urlparse import urlparse
 from scrapy.selector import Selector
 from scrapper.util.extractor import Extractor
 from scrapper.util.structure import Structure
@@ -34,11 +33,9 @@ class DomicaSpider(scrapy.Spider):
             meta = {'availability': objectAvailibility}
 
             # Parse Path and send another request
-            path = object.css('div.datacontainer > a').re_first(r'href="\s*(.*)\"')
-            parsed_uri = urlparse(response.url)
-            domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+            object_url = Extractor.url(response, object, 'div.datacontainer > a')
 
-            yield scrapy.Request(domain + path, self.parse_object, 'GET', None, None, None, meta)
+            yield scrapy.Request(object_url, self.parse_object, 'GET', None, None, None, meta)
 
     def parse_object(self, response):
         address_heading = Extractor.string(response, '.address').split(',')

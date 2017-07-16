@@ -1,6 +1,5 @@
 # coding=utf-8
 import scrapy
-from urlparse import urlparse
 from scrapy.http import FormRequest
 from scrapy.selector import Selector
 from scrapper.util.extractor import Extractor
@@ -50,17 +49,14 @@ class EervastSpider(scrapy.Spider):
         objects.extract()
 
         for index, object in enumerate(objects):
-            # Parse Path and send another request
-            path = object.css('.house-button a').re_first(r'href="\s*(.*)\"')
-            parsed_uri = urlparse(response.url)
-            domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+            object_url = Extractor.url(response, object, '.house-button a')
 
             # Extracting the street is a lot easier in the overview page, so we'll pass it into the meta
             street = Extractor.string(object, '.home-house-info h2')
             city = Extractor.string(object, '.home-house-info h3').split(" ")
             city = city[len(city) - 1]
             meta = {'street': street, 'city': city}
-            yield scrapy.Request(domain + path, self.parse_object, 'GET', None, None, None, meta)
+            yield scrapy.Request(object_url, self.parse_object, 'GET', None, None, None, meta)
 
     def parse_object(self, response):
         type = Structure.find_in_definition(response, '.house-info div', 'Type woning')

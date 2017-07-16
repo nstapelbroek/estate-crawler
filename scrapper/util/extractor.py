@@ -1,7 +1,8 @@
 # coding=utf-8
 from scrapy.selector import Selector
+from scrapy.http.response.html import HtmlResponse
 from htmllaundry import strip_markup
-
+from urlparse import urlparse
 
 class Extractor:
     @staticmethod
@@ -50,3 +51,19 @@ class Extractor:
             volume_string += '0'
 
         return float(volume_string)
+
+    @staticmethod
+    def url(response, html, cssSelector, valueRegex = r'href="\s*(.*)\"'):
+        path = html.css(cssSelector).re_first(valueRegex)
+        parsed_uri = urlparse(response.url)
+        domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+        return domain + path
+
+    @staticmethod
+    def urlWithoutQueryString(response):
+        if not isinstance(response, HtmlResponse):
+            raise ValueError('Argument 1 passed into \'urlWithoutQueryString\' should be of the type HtmlResponse')
+
+        parsed_reference = urlparse(response.url)
+        return parsed_reference.scheme + "://" + parsed_reference.netloc + parsed_reference.path
+

@@ -1,6 +1,5 @@
 # coding=utf-8
 import scrapy
-from urlparse import urlparse
 from scrapy.selector import Selector, SelectorList
 from scrapper.util.extractor import Extractor
 from scrapper.util.structure import Structure
@@ -29,12 +28,7 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
             if objectStatus == 'verhuurd':
                 continue
 
-            # Parse Path and send another request
-            path = object.css('.button.button-orange').re_first(r'href="\s*(.*)\"')
-            parsed_uri = urlparse(response.url)
-            domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
-
-            yield scrapy.Request(domain + path, self.parse_object)
+            yield scrapy.Request(Extractor.url(response, object, '.button.button-orange'), self.parse_object)
 
     def parse_object(self, response):
         city_heading = Extractor.string(response, '.offer-detail-city').split(',')
