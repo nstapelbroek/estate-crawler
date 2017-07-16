@@ -46,6 +46,6 @@ class NederwoonSpider(scrapy.Spider):
             'availability': response.meta['Availability'],
             'type': response.meta['Type'],
             'pricePerMonth': price,
-            'reference': response.url,
+            'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'NederWoon'
         }
