@@ -9,7 +9,7 @@ init:
 	pip install -r requirements.txt
 
 build:
-	sudo docker build --tag $(PROJECTNAME) --file $(PWD)/dev/docker/Dockerfile .
+	docker build --tag $(PROJECTNAME) --file $(PWD)/dev/docker/Dockerfile .
 
 run:
 	python ./crawler.py
