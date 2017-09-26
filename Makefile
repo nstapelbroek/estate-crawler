@@ -1,15 +1,15 @@
-.PHONY: build init run
+.PHONY: build install run
 
 # Variables
 MAKEPATH := $(abspath $(lastword $(MAKEFILE_LIST)))
 PWD := $(dir $(MAKEPATH))
-PROJECTNAME=nstapelbroek/estate-crawler
+PROJECTNAME=docker.io/nstapelbroek/estate-crawler
 
-init:
+install:
 	pip install -r requirements.txt
 
 build:
-	docker build --tag $(PROJECTNAME) --file $(PWD)/dev/docker/Dockerfile .
+	docker build --tag $(PROJECTNAME) --file $(PWD)/dev/docker/Dockerfile --pull .
 
 run:
 	python ./crawler.py

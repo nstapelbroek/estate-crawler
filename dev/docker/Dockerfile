@@ -45,6 +45,6 @@ RUN echo \
 # Install the crawler
 WORKDIR /app
 ADD . .
-ADD ./dev/docker/entrypoint.sh /app/entrypoint.sh
+ADD ./dev/docker/run_with_interval.sh /app/run_with_interval.sh
 
 CMD ["python", "crawler.py"]
