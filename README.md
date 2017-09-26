@@ -13,10 +13,13 @@ you can pick an agency that is best suited for your needs.
 Saving you time and potentially money.
 
 ## Quick start
-You can run the estate crawler by executing the crawler.py file.
+You can run the estate crawler by executing the crawler.py file. Below is an example that uses make as a taskrunner
+to install dependencies and run the crawler.
 
 ```bash
-./crawler.py
+make install
+make run
 ```
 
-By default, this will output all results to a `results.json` file in the build folder
+By default, this will output all results to a `results.json` file in the build folder. You are able to configure this
+path by changing the `FEED_URI` environment variable. Other configurations are readable in the crawler.py file.

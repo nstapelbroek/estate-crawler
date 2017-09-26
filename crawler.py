@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import os
 from scrapy.utils.project import get_project_settings
 from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner
@@ -10,16 +11,19 @@ from scrapper.spider.nederwoon import NederwoonSpider
 
 configure_logging()
 settings = get_project_settings()
-settings.set('BOT_NAME', 'estate-crawler')
-settings.set('USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36')
-settings.set('CONCURRENT_REQUESTS', '8')
-settings.set('CONCURRENT_REQUESTS_PER_DOMAIN', '3')
-settings.set('FEED_FORMAT', 'jsonlines')
-settings.set('FEED_URI', 'build/result.json')
 
-# Want to send your crawler results to an external API? uncomment these lines below
-# settings.set('ITEM_PIPELINES', {'scrapper.pipeline.api.Api': 300})
-# settings.set('SCRAPPER_API_URL', 'https://your-api-endpoint.com')
+# Overwrite Generic spider settings trough environment variables
+settings.set('BOT_NAME', os.getenv('BOT_NAME', 'estate-crawler'))
+settings.set('USER_AGENT', os.getenv('USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3112.50 Safari/537.36'))
+settings.set('CONCURRENT_REQUESTS', os.getenv('CONCURRENT_REQUESTS', '8'))
+settings.set('CONCURRENT_REQUESTS_PER_DOMAIN', os.getenv('CONCURRENT_REQUESTS_PER_DOMAIN', '3'))
+settings.set('FEED_FORMAT', os.getenv('FEED_FORMAT', 'jsonlines'))
+settings.set('FEED_URI', os.getenv('FEED_URI', 'build/result.json'))
+
+# Want to send your crawler results to an external API? Set the environment SCRAPPER_API_URL variable
+if "SCRAPPER_API_URL" in os.environ:
+    settings.set('ITEM_PIPELINES', {'scrapper.pipeline.api.Api': 300})
+    settings.set('SCRAPPER_API_URL', os.getenv('SCRAPPER_API_URL'))
 
 runner = CrawlerRunner(settings)
 
