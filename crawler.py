@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-import os
+import argparse
+from os import getenv
 from scrapy.utils.project import get_project_settings
+from scrapy.exceptions import NotSupported
 from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
@@ -9,59 +11,46 @@ from scrapper.spider.eervast import EervastSpider
 from scrapper.spider.eentweedriewonen import EenTweeDrieWonenSpider
 from scrapper.spider.nederwoon import NederwoonSpider
 
+# Cli handler
+parser = argparse.ArgumentParser(description='Crawl estate agencies for real-estate objects.')
+parser.add_argument('-r', '--region', help='A comma separated string of regions to search', required=True)
+parser.add_argument('-o', '--output-file', help='Location where the crawler will write jsonlines output', required=False)
+parser.add_argument('-a', '--output-api', help='HTTP url where the crawler will POST the results towards', required=False)
+args = parser.parse_args()
+
+# Setup settings
 configure_logging()
 settings = get_project_settings()
+settings.set('BOT_NAME', 'estate-crawler')
+settings.set('USER_AGENT', getenv('USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3112.50 Safari/537.36'))
+settings.set('CONCURRENT_REQUESTS', getenv('CONCURRENT_REQUESTS', '8'))
+settings.set('CONCURRENT_REQUESTS_PER_DOMAIN', getenv('CONCURRENT_REQUESTS_PER_DOMAIN', '3'))
+settings.set('FEED_FORMAT', getenv('FEED_FORMAT', 'jsonlines'))
+settings.set('FEED_URI', (args.output_file if args.output_file else 'build/result.json'))
 
-# Overwrite Generic spider settings trough environment variables
-settings.set('BOT_NAME', os.getenv('BOT_NAME', 'estate-crawler'))
-settings.set('USER_AGENT', os.getenv('USER_AGENT', 'Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3112.50 Safari/537.36'))
-settings.set('CONCURRENT_REQUESTS', os.getenv('CONCURRENT_REQUESTS', '8'))
-settings.set('CONCURRENT_REQUESTS_PER_DOMAIN', os.getenv('CONCURRENT_REQUESTS_PER_DOMAIN', '3'))
-settings.set('FEED_FORMAT', os.getenv('FEED_FORMAT', 'jsonlines'))
-settings.set('FEED_URI', os.getenv('FEED_URI', 'build/result.json'))
-
-# Want to send your crawler results to an external API? Set the environment SCRAPPER_API_URL variable
-if "SCRAPPER_API_URL" in os.environ:
+if args.output_api:
     settings.set('ITEM_PIPELINES', {'scrapper.pipeline.api.Api': 300})
-    settings.set('SCRAPPER_API_URL', os.getenv('SCRAPPER_API_URL'))
+    settings.set('SCRAPPER_API_URL', args.output_api)
 
+# Runtime
 runner = CrawlerRunner(settings)
 
 @defer.inlineCallbacks
-def crawl():
-    yield runner.crawl(EervastSpider)
-    yield runner.crawl(DomicaSpider, queryCity='Amersfoort')
-    yield runner.crawl(DomicaSpider, queryCity='Amsterdam')
-    yield runner.crawl(DomicaSpider, queryCity='Arnhem')
-    yield runner.crawl(DomicaSpider, queryCity='Den Haag')
-    yield runner.crawl(DomicaSpider, queryCity='Ede')
-    yield runner.crawl(DomicaSpider, queryCity='Enschede')
-    yield runner.crawl(DomicaSpider, queryCity='Hilversum')
-    yield runner.crawl(DomicaSpider, queryCity='Nijmegen')
-    yield runner.crawl(DomicaSpider, queryCity='Rotterdam')
-    yield runner.crawl(DomicaSpider, queryCity='Utrecht')
-    yield runner.crawl(NederwoonSpider, queryCity='Amersfoort')
-    yield runner.crawl(NederwoonSpider, queryCity='Amsterdam')
-    yield runner.crawl(NederwoonSpider, queryCity='Arnhem')
-    yield runner.crawl(NederwoonSpider, queryCity='Den Haag')
-    yield runner.crawl(NederwoonSpider, queryCity='Ede')
-    yield runner.crawl(NederwoonSpider, queryCity='Enschede')
-    yield runner.crawl(NederwoonSpider, queryCity='Hilversum')
-    yield runner.crawl(NederwoonSpider, queryCity='Nijmegen')
-    yield runner.crawl(NederwoonSpider, queryCity='Rotterdam')
-    yield runner.crawl(NederwoonSpider, queryCity='Utrecht')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Amersfoort')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Amsterdam')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Arnhem')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Den Haag')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Ede')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Enschede')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Hilversum')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Nijmegen')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Rotterdam')
-    yield runner.crawl(EenTweeDrieWonenSpider, queryCity='Utrecht')
+def crawl(regionArgument):
+    regions = regionArgument.split(',')
+    for region in regions:
+        try:
+            yield runner.crawl(EervastSpider, queryCity=region)
+        except NotSupported:
+            print 'skipped spider'
+
+        yield runner.crawl(DomicaSpider, queryCity=region)
+        yield runner.crawl(NederwoonSpider, queryCity=region)
+        yield runner.crawl(EenTweeDrieWonenSpider, queryCity=region)
+
+
     reactor.stop()
 
 
-crawl()
+crawl(args.region)
 reactor.run()
