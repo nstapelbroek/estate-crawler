@@ -39,12 +39,11 @@ RUN echo \
   && if [[ ! -e /usr/bin/pip ]]; then ln -sf /usr/bin/pip2.7 /usr/bin/pip; fi \
 
   # Install python dependencies
-  && pip install -r /tmp/requirements.txt \
-  && echo \
+  && pip install -r /tmp/requirements.txt
 
 # Install the crawler
 WORKDIR /app
-ADD . .
-ADD ./dev/docker/run_with_interval.sh /app/run_with_interval.sh
+ADD . ./dev/docker/run_with_interval.sh /app/
 
-CMD ["python", "crawler.py"]
+ENTRYPOINT ["python", "crawler.py"]
+CMD ["--region", "amsterdam"]

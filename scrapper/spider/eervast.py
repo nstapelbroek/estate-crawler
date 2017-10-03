@@ -2,6 +2,7 @@
 import scrapy
 from scrapy.http import FormRequest
 from scrapy.selector import Selector
+from scrapy.exceptions import NotSupported
 from scrapper.util.extractor import Extractor
 from scrapper.util.structure import Structure
 
@@ -21,6 +22,10 @@ prijs_tot = upper limit price in int
 class EervastSpider(scrapy.Spider):
     name = 'eervastspider'
     allowed_domains = ["www.eervast.nl"]
+
+    def __init__(self, queryCity='amersfoort'):
+        if queryCity.lower() != 'amersfoort':
+            raise NotSupported
 
     def build_request(self, type):
         return FormRequest(
