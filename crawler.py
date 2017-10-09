@@ -40,13 +40,13 @@ def crawl(regionArgument):
     regions = regionArgument.split(',')
     for region in regions:
         try:
-            yield runner.crawl(EervastSpider, queryCity=region)
+            yield runner.crawl(EervastSpider, queryRegion=region)
         except NotSupported:
             print 'skipped spider'
 
-        yield runner.crawl(DomicaSpider, queryCity=region)
-        yield runner.crawl(NederwoonSpider, queryCity=region)
-        yield runner.crawl(EenTweeDrieWonenSpider, queryCity=region)
+        yield runner.crawl(DomicaSpider, queryRegion=region)
+        yield runner.crawl(NederwoonSpider, queryRegion=region)
+        yield runner.crawl(EenTweeDrieWonenSpider, queryRegion=region)
 
 
     reactor.stop()
