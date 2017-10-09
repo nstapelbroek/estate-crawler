@@ -23,8 +23,9 @@ class EervastSpider(scrapy.Spider):
     name = 'eervastspider'
     allowed_domains = ["www.eervast.nl"]
 
-    def __init__(self, queryCity='amersfoort'):
-        if queryCity.lower() != 'amersfoort':
+    def __init__(self, queryRegion='amersfoort'):
+        self.region = queryRegion.title()
+        if queryRegion.lower() != 'amersfoort':
             raise NotSupported
 
     def build_request(self, type):
@@ -73,6 +74,7 @@ class EervastSpider(scrapy.Spider):
         yield {
             'street': response.meta['street'],
             'city': response.meta['city'],
+            'region': self.region,
             'volume': volume,
             'rooms': rooms,
             'availability': availability,

@@ -9,11 +9,12 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
     name = '123WonenSpider'
     allowed_domains = ["www.123wonen.nl"]
 
-    def __init__(self, queryCity='Amersfoort'):
+    def __init__(self, queryRegion='Amersfoort'):
+        self.region = queryRegion.title()
         self.start_urls = [
             (
                 'https://www.123wonen.nl/aanbod?per-page=50&city={0}&radius=10&residence_type_id=6'
-                .format(queryCity)
+                .format(queryRegion)
             )
         ]
 
@@ -70,6 +71,7 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
         yield {
             'street': street,
             'city': city,
+            'region': self.region,
             'volume': volume,
             'rooms': rooms,
             'availability': availability,
