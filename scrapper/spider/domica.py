@@ -10,6 +10,7 @@ class DomicaSpider(scrapy.Spider):
     allowed_domains = ["www.domica.nl"]
 
     def __init__(self, queryRegion='Amersfoort'):
+        self.region = queryRegion
         self.start_urls = [
             (
                 'https://www.domica.nl/woningaanbod/huur/land-nederland/gemeente-{0}/type-appartement'
@@ -64,6 +65,7 @@ class DomicaSpider(scrapy.Spider):
         yield {
             'street': street,
             'city': city,
+            'region': self.region,
             'volume': volume,
             'rooms': rooms,
             'availability': response.meta['availability'],

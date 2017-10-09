@@ -10,6 +10,7 @@ class NederwoonSpider(scrapy.Spider):
     allowed_domains = ["www.nederwoon.nl"]
 
     def __init__(self, queryRegion='amersfoort'):
+        self.region = queryRegion
         self.start_urls = ['http://www.nederwoon.nl/huurwoningen/{0}?numberviews=1000&rows=1000&q='.format(queryRegion)]
 
     def parse(self, response):
@@ -41,6 +42,7 @@ class NederwoonSpider(scrapy.Spider):
         yield {
             'street': cityStreet[0],
             'city': cityStreet[1],
+            'region': self.region,
             'volume': volume,
             'rooms': rooms,
             'availability': response.meta['Availability'],
