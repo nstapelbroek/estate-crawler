@@ -10,7 +10,7 @@ class NederwoonSpider(scrapy.Spider):
     allowed_domains = ["www.nederwoon.nl"]
 
     def __init__(self, queryRegion='amersfoort'):
-        self.region = queryRegion
+        self.region = queryRegion.title()
         self.start_urls = ['http://www.nederwoon.nl/huurwoningen/{0}?numberviews=1000&rows=1000&q='.format(queryRegion)]
 
     def parse(self, response):

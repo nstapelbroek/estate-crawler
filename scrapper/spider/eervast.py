@@ -24,7 +24,7 @@ class EervastSpider(scrapy.Spider):
     allowed_domains = ["www.eervast.nl"]
 
     def __init__(self, queryRegion='amersfoort'):
-        self.region = queryRegion
+        self.region = queryRegion.title()
         if queryRegion.lower() != 'amersfoort':
             raise NotSupported
 
