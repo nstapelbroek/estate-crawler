@@ -5,7 +5,7 @@ from scrapper.util.extractor import Extractor
 
 class Structure:
     @staticmethod
-    def find_in_definition(html, targetElement, targetText):
+    def find_in_definition(html, targetElement, targetText, indexOffset = 1):
         if not isinstance(html, Selector):
             html = Selector(html)
 
@@ -19,4 +19,4 @@ class Structure:
                 return text
 
             if text.lower() == targetText.lower():
-                matchedIndex = index + 1
+                matchedIndex = index + indexOffset

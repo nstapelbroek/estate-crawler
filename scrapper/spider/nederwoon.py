@@ -1,8 +1,9 @@
 # coding=utf-8
 import scrapy
-from urlparse import urlparse
+import re
 from scrapy.selector import Selector
 from scrapper.util.extractor import Extractor
+from scrapper.util.structure import Structure
 
 
 class NederwoonSpider(scrapy.Spider):
@@ -11,42 +12,46 @@ class NederwoonSpider(scrapy.Spider):
 
     def __init__(self, queryRegion='amersfoort'):
         self.region = queryRegion.title()
-        self.start_urls = ['http://www.nederwoon.nl/huurwoningen/{0}?numberviews=1000&rows=1000&q='.format(queryRegion)]
+        self.start_urls = ['http://www.nederwoon.nl/huurwoningen/{0}'.format(queryRegion)]
 
     def parse(self, response):
         pageSelector = Selector(response)
-        objects = pageSelector.css('form#searchform div#cont_element75')
+        objects = pageSelector.css('.location')
         objects.extract()
 
         for index, object in enumerate(objects):
-            # Determine if the object is the right type
-            type = str(Extractor.string(object, 'div[data-object-kenmerk="type"]')).lower()
-            if type != 'appartement' and type != 'kamer' and type != "studio":
-                continue
-
-            # Extract the request patch from a button and rebuild the follow up url
-            path = object.css('a.green.underlined').re_first(r'href="\s*(.*)\" class')
-            parsed_uri = urlparse(response.url)
-            domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
-
-            # Nederwoon does not correctly show the availability date in the detail page, pass the date as meta
-            meta = {'Type': type, 'Availability': Extractor.string(object, '[data-object-kenmerk="beschikbaarheid"]')}
-            yield scrapy.Request(domain + path, self.parse_object, 'GET', None, None, None, meta)
+            objectUrl = Extractor.url(response, object, 'h2.heading-sm > a')
+            yield scrapy.Request(objectUrl, self.parse_object)
 
     def parse_object(self, response):
-        cityStreet = Extractor.string(response, '[data-object-kenmerk="straatnaam"]').split(', ')
-        volume = Extractor.volume(response, '[data-object-kenmerk="woonoppervlakte"]')
-        rooms = Extractor.string(response, '[data-object-kenmerk="slaapkamers"]')
-        price = Extractor.euro(response, '.price_red')
+        street = Extractor.string(response, 'h1.text-regular')
+        city = Extractor.string(response, '.col-md-8 .fixed-lh p.color-medium')
+        availability = Extractor.string(response, '.col-md-8 .horizontal-items ul li:last-child')
+
+        # Sometimes Nederwoon mistakenly adds the zip code in the city field, filter it out
+        city = re.sub('\d{4}?\s*[a-zA-Z]{2}', '', city).replace(' ', '')
+
+        rooms = Extractor.string(
+            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Aantal kamers')
+        )
+        price = Extractor.euro(
+            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Totale huur per maand', 2)
+        )
+        volume = Extractor.volume(
+            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Woonoppervlakte')
+        )
+        type = Extractor.string(
+            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Soort woonruimte')
+        )
 
         yield {
-            'street': cityStreet[0],
-            'city': cityStreet[1],
+            'street': street,
+            'city': city,
             'region': self.region,
             'volume': volume,
             'rooms': rooms,
-            'availability': response.meta['Availability'],
-            'type': response.meta['Type'],
+            'availability': availability,
+            'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'NederWoon'
