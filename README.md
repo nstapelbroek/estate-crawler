@@ -1,7 +1,7 @@
 # Estate Crawler
 
 Finding a place to live can be tough. If for any reason you are unable 
-to buy an house, the search for a rental apartment can cost you a lot 
+to buy a house, the search for a rental apartment can cost you a lot 
 of time and money. Real estate agencies will often charge you before
 you've even visited your first potential "object". 
 The subscriptions they force upon you are unfair and do not 
