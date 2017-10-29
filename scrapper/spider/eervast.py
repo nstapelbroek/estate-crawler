@@ -43,7 +43,7 @@ class EervastSpider(scrapy.Spider):
         )
 
     def start_requests(self):
-        types = ['4', '20']  # Initially only look for apartments and studios
+        types = ['4', '10', '20']  # Initially only look for apartments and studios
         requests = []
         for type in types:
             requests.append(self.build_request(type))
@@ -55,7 +55,7 @@ class EervastSpider(scrapy.Spider):
         objects.extract()
 
         for index, object in enumerate(objects):
-            object_url = Extractor.url(response, object, '.house-button a')
+            object_url = Extractor.url(response, object, '.house-button a::attr(href)')
 
             # Extracting the street is a lot easier in the overview page, so we'll pass it into the meta
             street = Extractor.string(object, '.home-house-info h2')
@@ -81,5 +81,6 @@ class EervastSpider(scrapy.Spider):
             'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
-            'estateAgent': 'Eervast'
+            'estateAgent': 'Eervast',
+            'images': Extractor.images(response, '.tab-content > a.gallery::attr(href)', True),
         }
