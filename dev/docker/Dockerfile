@@ -1,9 +1,7 @@
-FROM alpine:3.4
+FROM alpine:3.6
 
 # Based on: https://github.com/jfloff/alpine-python/blob/master/2.7/slim/Dockerfile
-MAINTAINER Nico Stapelbroek <nstapelbroek@gmail.com>
 
-# Install needed packages.
 ENV PACKAGES="\
   musl \
   linux-headers \
@@ -25,6 +23,8 @@ COPY requirements.txt /tmp/requirements.txt
 
 RUN echo \
   # Add the packages, with a CDN-breakage fallback if needed
+  && echo https://nl.alpinelinux.org/alpine/v3.6/main/ > /etc/apk/repositories \
+  && echo https://nl.alpinelinux.org/alpine/v3.6/community/ >> /etc/apk/repositories \
   && apk add --no-cache $PACKAGES || \
     (sed -i -e 's/dl-cdn/dl-4/g' /etc/apk/repositories && apk add --no-cache $PACKAGES) \
 
