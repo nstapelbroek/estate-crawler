@@ -4,6 +4,7 @@ from scrapy.http.response.html import HtmlResponse
 from htmllaundry import strip_markup
 from urlparse import urlparse
 
+
 class Extractor:
     @staticmethod
     def euro(html, cssSelector='*'):
@@ -17,7 +18,7 @@ class Extractor:
         data = words[0]
 
         # If we created a string ending with a . append a zero so float conversion is predictable
-        if(data.endswith('.')):
+        if (data.endswith('.')):
             data += '0'
 
         return float(data)
@@ -47,10 +48,27 @@ class Extractor:
 
         # If we created a string ending with a . append a zero so float conversion is predictable
         volume_string.strip()
-        if(volume_string.endswith('.')):
+        if (volume_string.endswith('.')):
             volume_string += '0'
 
         return float(volume_string)
+
+    @staticmethod
+    def images(response, cssSelector, isAbsolute=False, prefix=None):
+        images = []
+
+        for index, href in enumerate(response.css(cssSelector).extract()):
+            if not isAbsolute:
+                parsed_uri = urlparse(response.url)
+                domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
+                href = domain + href
+
+            if isinstance(prefix, str):
+                href = prefix + href
+
+            images.append({'href': href})
+
+        return images
 
     @staticmethod
     def url(response, html, cssSelector):
@@ -66,4 +84,3 @@ class Extractor:
 
         parsed_reference = urlparse(response.url)
         return parsed_reference.scheme + "://" + parsed_reference.netloc + parsed_reference.path
-

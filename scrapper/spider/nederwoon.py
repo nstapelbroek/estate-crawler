@@ -55,5 +55,6 @@ class NederwoonSpider(scrapy.Spider):
             'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
-            'estateAgent': 'NederWoon'
+            'estateAgent': 'NederWoon',
+            'images': Extractor.images(response, '.slider.slider-media > div img::attr(src)'),
         }

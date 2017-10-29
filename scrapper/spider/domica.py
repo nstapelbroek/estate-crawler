@@ -72,5 +72,6 @@ class DomicaSpider(scrapy.Spider):
             'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
-            'estateAgent': 'Domica'
+            'estateAgent': 'Domica',
+            'images': Extractor.images(response, '#cycle-slideshow2 > a.gallery-link img::attr(src)', True),
         }

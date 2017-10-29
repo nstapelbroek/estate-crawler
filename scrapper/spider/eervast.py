@@ -43,7 +43,7 @@ class EervastSpider(scrapy.Spider):
         )
 
     def start_requests(self):
-        types = ['4', '20']  # Initially only look for apartments and studios
+        types = ['4', '10', '20']  # Initially only look for apartments and studios
         requests = []
         for type in types:
             requests.append(self.build_request(type))
@@ -81,5 +81,6 @@ class EervastSpider(scrapy.Spider):
             'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
-            'estateAgent': 'Eervast'
+            'estateAgent': 'Eervast',
+            'images': Extractor.images(response, '.tab-content > a.gallery::attr(href)', True),
         }
