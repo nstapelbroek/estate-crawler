@@ -53,8 +53,8 @@ class Extractor:
         return float(volume_string)
 
     @staticmethod
-    def url(response, html, cssSelector, valueRegex = r'href="\s*(.*)\"'):
-        path = html.css(cssSelector).re_first(valueRegex)
+    def url(response, html, cssSelector):
+        path = html.css(cssSelector).extract_first()
         parsed_uri = urlparse(response.url)
         domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
         return domain + path

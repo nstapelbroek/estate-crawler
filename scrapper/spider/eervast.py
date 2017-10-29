@@ -55,7 +55,7 @@ class EervastSpider(scrapy.Spider):
         objects.extract()
 
         for index, object in enumerate(objects):
-            object_url = Extractor.url(response, object, '.house-button a')
+            object_url = Extractor.url(response, object, '.house-button a::attr(href)')
 
             # Extracting the street is a lot easier in the overview page, so we'll pass it into the meta
             street = Extractor.string(object, '.home-house-info h2')

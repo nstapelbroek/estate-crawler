@@ -29,7 +29,7 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
             if objectStatus == 'verhuurd':
                 continue
 
-            yield scrapy.Request(Extractor.url(response, object, '.button.button-orange'), self.parse_object)
+            yield scrapy.Request(Extractor.url(response, object, '.button.button-orange::attr(href)'), self.parse_object)
 
     def parse_object(self, response):
         city_heading = Extractor.string(response, '.offer-detail-city').split(',')

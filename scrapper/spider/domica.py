@@ -34,7 +34,7 @@ class DomicaSpider(scrapy.Spider):
             meta = {'availability': objectAvailibility}
 
             # Parse Path and send another request
-            object_url = Extractor.url(response, object, 'div.datacontainer > a')
+            object_url = Extractor.url(response, object, 'div.datacontainer > a::attr(href)')
 
             yield scrapy.Request(object_url, self.parse_object, 'GET', None, None, None, meta)
 

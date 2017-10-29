@@ -2,6 +2,7 @@
 import scrapy
 import re
 from scrapy.selector import Selector
+
 from scrapper.util.extractor import Extractor
 from scrapper.util.structure import Structure
 
@@ -20,7 +21,7 @@ class NederwoonSpider(scrapy.Spider):
         objects.extract()
 
         for index, object in enumerate(objects):
-            objectUrl = Extractor.url(response, object, 'h2.heading-sm > a')
+            objectUrl = Extractor.url(response, object, 'h2.heading-sm > a::attr(href)')
             yield scrapy.Request(objectUrl, self.parse_object)
 
     def parse_object(self, response):
