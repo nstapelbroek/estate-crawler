@@ -66,7 +66,7 @@ class Extractor:
             if isinstance(prefix, str):
                 href = prefix + href
 
-            images.append({'href': href})
+            images.append({'href': href.encode('utf-8')})
 
         return images
 
