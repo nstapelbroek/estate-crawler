@@ -7,6 +7,8 @@ class Api(object):
         apiUrl = (settings.get('SCRAPPER_API_URL'))
 
         if isinstance(apiUrl, str):
-            requests.post(apiUrl, item)
+            headers = {'content-type': 'application/json'}
+            requests.post(apiUrl, json=item, headers=headers)
+
 
         return item
