@@ -79,5 +79,5 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': '123Wonen.nl',
-            'images': Extractor.images(response, '.highslide-gallery > a::attr(href)', True, 'http:'),
+            'images': Extractor.images(response, '.highslide-gallery > a::attr(href)', True, 'https:'),
         }
