@@ -13,7 +13,7 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
         self.region = queryRegion.title()
         self.start_urls = [
             (
-                'https://www.123wonen.nl/aanbod?per-page=50&city={0}&radius=10&residence_type_id=6'
+                'https://www.123wonen.nl/aanbod?city={0}&radius=10&min_price=&max_price=&size_m2=&per-page=50'
                 .format(queryRegion)
             )
         ]
@@ -26,7 +26,12 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
             objectStatus = str(Extractor.string(object, '.status-label')).lower()
-            if objectStatus == 'verhuurd':
+            if objectStatus in ['verhuurd', 'in optie']:
+                continue
+
+            # Skip crawling storage spaces and garages
+            type = Structure.find_in_definition(object, '.offer-detail > *', 'Type').lower()
+            if type in ['Garagebox', 'Berging/Opslag', 'Kantoorruimte', 'Loods', 'Parkeerplaats', 'Winkelpand']:
                 continue
 
             yield scrapy.Request(Extractor.url(response, object, '.button.button-orange::attr(href)'), self.parse_object)
