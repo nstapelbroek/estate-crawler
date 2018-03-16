@@ -1,0 +1,15 @@
+language: python
+
+python:
+  - "2.6"
+  - "2.7"
+
+before_install:
+  - pip install pylint
+
+install:
+  - pip install -r requirements.txt
+
+script:
+  - pylint ./crawler.py scrapper
+  - ./crawler.py --region amsterdam
