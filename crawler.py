@@ -10,6 +10,7 @@ from scrapper.spider.domica import DomicaSpider
 from scrapper.spider.eervast import EervastSpider
 from scrapper.spider.eentweedriewonen import EenTweeDrieWonenSpider
 from scrapper.spider.nederwoon import NederwoonSpider
+from scrapper.spider.vanderhulst import VanderHulstSpider
 
 # Cli handler
 parser = argparse.ArgumentParser(description='Crawl estate agencies for real-estate objects.')
@@ -44,6 +45,7 @@ def crawl(regionArgument):
         except NotSupported:
             print 'skipped spider'
 
+        yield runner.crawl(VanderHulstSpider, queryRegion=region)
         yield runner.crawl(DomicaSpider, queryRegion=region)
         yield runner.crawl(NederwoonSpider, queryRegion=region)
         yield runner.crawl(EenTweeDrieWonenSpider, queryRegion=region)
