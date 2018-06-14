@@ -3,12 +3,16 @@ language: python
 python:
   - "2.7"
 
-before_install:
-  - pip install pylint
+jobs:
+  include:
+    - stage: test
+      script: pip install -r requirements.txt
+      script: ./crawler.py --region amsterdam
 
-install:
-  - pip install -r requirements.txt
-
-script:
-  - pylint ./crawler.py scrapper
-  - ./crawler.py --region amsterdam
+    - stage: test-docker
+      if: type IN (api, cron, push)
+      script: docker build --tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH --pull .
+      script: docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build docker.io/nstapelbroek/estate-crawler --region amsterdam
+      script: docker login -u="nstapelbroekbot" -p="$DOCKERHUB_PASSWORD"
+      script: docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH
+      script: docker push docker.io/nstapelbroek/estate-crawler
