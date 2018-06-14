@@ -7,7 +7,7 @@ PROJECTNAME=docker.io/nstapelbroek/estate-crawler
 TAGNAME=latest
 
 install:
-	pip install -r requirements.txt
+	pip install -r requirements.txt --user
 
 build:
 	docker build --tag $(PROJECTNAME):$(TAGNAME) --file $(PWD)dev/docker/Dockerfile --pull .
