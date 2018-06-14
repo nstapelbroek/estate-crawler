@@ -6,13 +6,13 @@ python:
 jobs:
   include:
     - stage: test
-      script: pip install -r requirements.txt
+      install: pip install -r requirements.txt
       script: ./crawler.py --region amsterdam
 
-    - stage: test-docker
+    - stage: build-docker
       if: type IN (api, cron, push)
-      script: docker build --tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH --pull .
+      install: docker build --tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH --pull .
       script: docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build docker.io/nstapelbroek/estate-crawler --region amsterdam
-      script: docker login -u="nstapelbroekbot" -p="$DOCKERHUB_PASSWORD"
-      script: docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH
-      script: docker push docker.io/nstapelbroek/estate-crawler
+      after_success:  docker login -u="nstapelbroekbot" -p="$DOCKERHUB_PASSWORD" && \
+                      docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && \
+                      docker push docker.io/nstapelbroek/estate-crawler
