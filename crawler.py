@@ -11,6 +11,7 @@ from scrapper.spider.eervast import EervastSpider
 from scrapper.spider.eentweedriewonen import EenTweeDrieWonenSpider
 from scrapper.spider.nederwoon import NederwoonSpider
 from scrapper.spider.vanderhulst import VanderHulstSpider
+from scrapper.spider.rotsvast import RotsvastSpider
 
 # Cli handler
 parser = argparse.ArgumentParser(description='Crawl estate agencies for real-estate objects.')
@@ -49,7 +50,7 @@ def crawl(regionArgument):
         yield runner.crawl(DomicaSpider, queryRegion=region)
         yield runner.crawl(NederwoonSpider, queryRegion=region)
         yield runner.crawl(EenTweeDrieWonenSpider, queryRegion=region)
-
+        yield runner.crawl(RotsvastSpider, queryRegion=region)
 
     reactor.stop()
 
