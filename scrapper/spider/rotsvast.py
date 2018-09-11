@@ -57,5 +57,5 @@ class RotsvastSpider(scrapy.Spider):
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'Rotsvast',
-            'images': Extractor.images(response, '.slider img::attr(src)'),
+            'images': Extractor.images(response, '.slider img::attr(src)', True),
         }
