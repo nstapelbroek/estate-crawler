@@ -44,7 +44,7 @@ def crawl(regionArgument):
         try:
             yield runner.crawl(EervastSpider, queryRegion=region)
         except NotSupported:
-            print 'skipped spider'
+            pass
 
         yield runner.crawl(VanderHulstSpider, queryRegion=region)
         yield runner.crawl(DomicaSpider, queryRegion=region)
