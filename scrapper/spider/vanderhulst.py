@@ -22,7 +22,7 @@ class VanderHulstSpider(scrapy.Spider):
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
             objectStatus = str(Extractor.string(object, '.property-row-meta-item-status > strong')).lower()
-            if objectStatus in ['verhuurd', 'in optie', 'onder optie']:
+            if objectStatus in ['verhuurd', 'in optie', 'onder opti e']:
                 continue
 
             objectUrl = Extractor.string(object, 'a.property-row-image::attr(href)')
