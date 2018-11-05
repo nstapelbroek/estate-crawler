@@ -11,11 +11,11 @@ jobs:
   include:
     - stage: test
       script:
-        - pipenv run crawler.py --region Utrecht
+        - pipenv run ./crawler.py --region Utrecht
       python: '3.6'
     - stage: test
       script:
-        - pipenv run crawler.py --region Utrecht
+        - pipenv run ./crawler.py --region Utrecht
       python: '3.7'
       dist: xenial
       sudo: true

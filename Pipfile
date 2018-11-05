@@ -8,6 +8,7 @@ scrapy = "*"
 configobj = "*"
 htmllaundry = "*"
 requests = "*"
+attrs = {version = "<17.5,>=17.4"}
 
 [dev-packages]
 
