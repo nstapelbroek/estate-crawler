@@ -12,21 +12,17 @@ offers at several agencies. By collecting and comparing this data,
 you can pick an agency that is best suited for your needs. 
 Saving you time and potentially money.
 
-## Quick start
+# Usage
 You can run the estate crawler by executing the crawler.py file. Below is an example that uses make as a taskrunner
 to install dependencies and run the crawler.
 
 ```bash
-make install
-./crawler.py --region amsterdam,rotterdam,arnhem
+pipenv install && pipenv run ./crawler.py --region amsterdam,rotterdam,arnhem
 ```
-
-By default this will output all results to a `results.json` file in the build folder. You are able to configure this
-path by adding an `--output-file` argument. Other arguments are listed when issuing `--help`.
-
-### Docker
 If you have the luxury of Docker available on your system, you can run the crawler without installing any dependencies like so:
 ```bash
-docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build docker.io/nstapelbroek/estate-crawler --region amsterdam
+docker run --rm -v $(pwd):/app/build docker.io/nstapelbroek/estate-crawler --region amsterdam
 ```
-Because we're mounting your current directory in /app/build, there should be a results.json file available after a successful run.
+
+Results of your crawl run are available in ./build/results.json after a successful run. You can change this path by passing
+a `--output-file` argument.
