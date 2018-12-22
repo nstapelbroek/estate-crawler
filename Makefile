@@ -1,7 +1,7 @@
 IMAGE=nstapelbroek/estate-crawler
 BUILD=docker build --target
 RUN=docker run --rm -it
-STRUCTURE_TEST_FILE=structure-tests.yaml
+STRUCTURE_TEST_FILE=dev/docker/structure-tests.yaml
 
 verify: lint validate check
 

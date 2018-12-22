@@ -12,7 +12,7 @@ RUN pipenv install --system --deploy
 
 # App is for base images that do not need dev-dependencies
 FROM base AS app
-COPY crawler.py ./scrapper /app/
+COPY . /app/
 
 # test-base is for images that need dev-dependencies
 FROM app AS test-base

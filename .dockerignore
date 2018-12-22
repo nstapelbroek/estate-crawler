@@ -1,9 +1,4 @@
-# Logs
-logs
-*.log
-
-# Runtime data
-pids
-*.pid
-*.seed
-
+*
+!estate_crawler/*
+!crawler.py
+!Pipfile*
