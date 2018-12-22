@@ -21,7 +21,7 @@ jobs:
       sudo: true
 
     - stage: build-docker
-      if: type IN (api, cron, push)
+      if: branch = latest
       install: docker build --file ./Dockerfile --tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH --pull .
       script: docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build docker.io/nstapelbroek/estate-crawler --region amsterdam
       after_success:  docker login -u="nstapelbroekbot" -p="$DOCKERHUB_PASSWORD" && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
