@@ -22,7 +22,8 @@ jobs:
 
     - stage: Test image
       if: type = pull_request
-      install: make validate
+      install: docker pull nstapelbroek/estate-crawler:latest
+      script: make validate-pr
     - stage: Test and publish image
       if: branch = latest AND type != pull_request
       install: make validate
