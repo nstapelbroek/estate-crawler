@@ -45,21 +45,21 @@ class DomicaSpider(scrapy.Spider):
         city = postcode_and_city[(len(postcode_and_city) - 1)]
 
         volume = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Gebruiksoppervlakte wonen')
-        if volume is not None and isinstance(volume, basestring):
+        if volume is not None and isinstance(volume, str):
             volume = Extractor.volume(volume)
 
         rooms = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Aantal kamers')
-        if rooms is not None and isinstance(rooms, basestring):
+        if rooms is not None and isinstance(rooms, str):
             rooms = rooms.split(' (w')[0]
 
         type = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Type object')
-        if type is not None and isinstance(type, basestring):
+        if type is not None and isinstance(type, str):
             type = type.split(', ')
             lastindex = (len(type) - 1)
             type = type[lastindex]
 
         price = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Prijs')
-        if price is not None and isinstance(type, basestring):
+        if price is not None and isinstance(type, str):
             price = Extractor.euro(price.split('-')[0])
 
         yield {

@@ -1,4 +1,0 @@
-scrapy
-configobj
-htmllaundry
-requests

@@ -2,12 +2,12 @@
 from scrapy.selector import Selector
 from scrapy.http.response.html import HtmlResponse
 from htmllaundry import strip_markup
-from urlparse import urlparse
+from urllib.parse import urlparse
 
 
 class Extractor:
     @staticmethod
-    def euro(html, cssSelector='*'):
+    def euro(html, cssSelector='*') -> float:
         data = Extractor.string(html, cssSelector)
 
         # Flip dot and comma, remove euro sign
@@ -24,7 +24,7 @@ class Extractor:
         return float(data)
 
     @staticmethod
-    def string(html, cssSelector='*'):
+    def string(html, cssSelector='*') -> str:
         if isinstance(html, str):
             return strip_markup(html).strip()
 
@@ -33,13 +33,13 @@ class Extractor:
 
         data = html.css(cssSelector).extract_first()
         if data is None:
-            return str('')
+            data = str('')
 
-        data = str(strip_markup(data).encode('utf-8'))
+        data = strip_markup(data)
         return data.strip()
 
     @staticmethod
-    def volume(html, cssSelector='*'):
+    def volume(html, cssSelector='*') -> float:
         string = Extractor.string(html, cssSelector)
 
         # Flip dot and comma, remove square meters from string
@@ -54,7 +54,7 @@ class Extractor:
         return float(volume_string)
 
     @staticmethod
-    def images(response, cssSelector, isAbsolute=False, prefix=None):
+    def images(response, cssSelector, isAbsolute=False, prefix=None) -> []:
         images = []
 
         for index, href in enumerate(response.css(cssSelector).extract()):
@@ -66,19 +66,19 @@ class Extractor:
             if isinstance(prefix, str):
                 href = prefix + href
 
-            images.append({'href': href.encode('utf-8')})
+            images.append({'href': str(href)})
 
         return images
 
     @staticmethod
-    def url(response, html, cssSelector):
+    def url(response, html, cssSelector) -> str:
         path = html.css(cssSelector).extract_first()
         parsed_uri = urlparse(response.url)
         domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
         return domain + path
 
     @staticmethod
-    def urlWithoutQueryString(response):
+    def urlWithoutQueryString(response) -> str:
         if not isinstance(response, HtmlResponse):
             raise ValueError('Argument 1 passed into \'urlWithoutQueryString\' should be of the type HtmlResponse')
 

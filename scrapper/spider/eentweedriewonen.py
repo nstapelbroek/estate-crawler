@@ -55,7 +55,7 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
         # Crawl the next pages
         nextPageSelector = '.productBrowser a:contains("volgende")'
         nextPageLink = pageSelector.css(nextPageSelector).extract_first()
-        if nextPageLink is not None and isinstance(nextPageLink, basestring):
+        if nextPageLink is not None and isinstance(nextPageLink, str):
             nextPageSelector += '::attr(href)'
             yield scrapy.Request(
                 Extractor.url(response, pageSelector, nextPageSelector),
@@ -69,15 +69,15 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
         street = ' - '.join(breadCrumbTitle)
 
         volume = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Woonoppervlakte')
-        if volume is not None and isinstance(volume, basestring):
+        if volume is not None and isinstance(volume, str):
             volume = Extractor.volume(volume)
 
         rooms = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Kamers')
-        if rooms is not None and isinstance(rooms, basestring):
+        if rooms is not None and isinstance(rooms, str):
             Extractor.string(rooms)
 
         type = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Type')
-        if type is not None and isinstance(type, basestring):
+        if type is not None and isinstance(type, str):
             Extractor.string(type)
 
         price = Extractor.string(response, '.panddetail-price')
@@ -85,7 +85,7 @@ class EenTweeDrieWonenSpider(scrapy.Spider):
         price = Extractor.euro(price)
 
         availability = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Beschikbaarheid')
-        if availability is not None and isinstance(type, basestring):
+        if availability is not None and isinstance(type, str):
             availability = Extractor.string(availability)
 
         yield {
