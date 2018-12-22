@@ -11,6 +11,9 @@ requests = "*"
 attrs = {version = "<17.5,>=17.4"}
 
 [dev-packages]
+pytest = "*"
+pytest-black = "*"
+safety = "*"
 
 [requires]
 python_version = "3.7"

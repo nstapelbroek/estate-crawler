@@ -5,6 +5,25 @@ from htmllaundry import strip_markup
 from urllib.parse import urlparse
 
 
+class Structure:
+    @staticmethod
+    def find_in_definition(html, targetElement, targetText, indexOffset = 1):
+        if not isinstance(html, Selector):
+            html = Selector(html)
+
+        matchedIndex = 'not found'
+        elements = html.css(targetElement)
+        elements.extract()
+
+        for index, element in enumerate(elements):
+            text = Extractor.string(element)
+            if index == matchedIndex:
+                return text
+
+            if text.lower() == targetText.lower():
+                matchedIndex = index + indexOffset
+
+
 class Extractor:
     @staticmethod
     def euro(html, cssSelector='*') -> float:

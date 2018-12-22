@@ -6,14 +6,10 @@ from scrapy.exceptions import NotSupported
 from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
-from scrapper.spider.domica import DomicaSpider
-from scrapper.spider.eervast import EervastSpider
-from scrapper.spider.eentweedriewonen import EenTweeDrieWonenSpider
-from scrapper.spider.nederwoon import NederwoonSpider
-from scrapper.spider.vanderhulst import VanderHulstSpider
-from scrapper.spider.rotsvast import RotsvastSpider
 
-# Cli handler
+from estate_crawler.spiders.netherlands import Eervast, VanderHulst, Domica, Nederwoon, \
+    EenTweeDrieWonen, Rotsvast
+
 parser = argparse.ArgumentParser(description='Crawl estate agencies for real-estate objects.')
 parser.add_argument('-r', '--region', help='A comma separated string of regions to search', required=True)
 parser.add_argument('-o', '--output-file', help='Location where the crawler will write jsonlines output', required=False)
@@ -39,18 +35,14 @@ runner = CrawlerRunner(settings)
 
 @defer.inlineCallbacks
 def crawl(regionArgument):
+    spiders = [Eervast, VanderHulst, Domica, Nederwoon, EenTweeDrieWonen, Rotsvast]
     regions = regionArgument.split(',')
     for region in regions:
-        try:
-            yield runner.crawl(EervastSpider, queryRegion=region)
-        except NotSupported:
-            pass
-
-        yield runner.crawl(VanderHulstSpider, queryRegion=region)
-        yield runner.crawl(DomicaSpider, queryRegion=region)
-        yield runner.crawl(NederwoonSpider, queryRegion=region)
-        yield runner.crawl(EenTweeDrieWonenSpider, queryRegion=region)
-        yield runner.crawl(RotsvastSpider, queryRegion=region)
+        for spider in spiders:
+            try:
+                yield runner.crawl(spider, queryRegion=region)
+            except NotSupported:
+                pass
 
     reactor.stop()
 
