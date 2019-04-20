@@ -24,7 +24,7 @@ class Domica(scrapy.Spider):
     def parse(self, response):
         pageSelector = Selector(response)
         objects = pageSelector.css('.object_list_container .row.object')
-        objects.extract()
+        objects.getall()
 
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
@@ -110,7 +110,7 @@ class EenTweeDrieWonen(scrapy.Spider):
     def parse(self, response):
         pageSelector = Selector(response)
         objects = pageSelector.css('.pandlist-container')
-        objects.extract()
+        objects.getall()
 
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
@@ -130,7 +130,7 @@ class EenTweeDrieWonen(scrapy.Spider):
 
         # Crawl the next pages
         nextPageSelector = '.productBrowser a:contains("volgende")'
-        nextPageLink = pageSelector.css(nextPageSelector).extract_first()
+        nextPageLink = pageSelector.css(nextPageSelector).get()
         if nextPageLink is not None and isinstance(nextPageLink, str):
             nextPageSelector += '::attr(href)'
             yield scrapy.Request(
@@ -213,7 +213,7 @@ class Eervast(scrapy.Spider):
     def parse(self, response):
         pageSelector = Selector(response)
         objects = pageSelector.css('.home-house')
-        objects.extract()
+        objects.getall()
 
         for index, object in enumerate(objects):
             object_url = Extractor.url(response, object, '.house-button a::attr(href)')
@@ -258,7 +258,7 @@ class Nederwoon(scrapy.Spider):
     def parse(self, response):
         pageSelector = Selector(response)
         objects = pageSelector.css('.location')
-        objects.extract()
+        objects.getall()
 
         for index, object in enumerate(objects):
             objectUrl = Extractor.url(response, object, 'h2.heading-sm > a::attr(href)')
@@ -313,7 +313,7 @@ class Rotsvast(scrapy.Spider):
     def parse(self, response):
         pageSelector = Selector(response)
         objects = pageSelector.css('.residence-list.clickable-parent')
-        objects.extract()
+        objects.getall()
 
         for index, object in enumerate(objects):
             objectUrl = Extractor.string(object, 'a.clickable-block::attr(href)')
@@ -369,7 +369,7 @@ class VanderHulst(scrapy.Spider):
     def parse(self, response):
         pageSelector = Selector(response)
         objects = pageSelector.css('article.property')
-        objects.extract()
+        objects.getall()
 
         for index, object in enumerate(objects):
             # Determine if the object is still available for rent
