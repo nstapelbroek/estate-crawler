@@ -13,7 +13,7 @@ class Structure:
 
         matchedIndex = 'not found'
         elements = html.css(targetElement)
-        elements.extract()
+        elements.getall()
 
         for index, element in enumerate(elements):
             text = Extractor.string(element)
@@ -50,7 +50,7 @@ class Extractor:
         if not isinstance(html, Selector):
             html = Selector(html)
 
-        data = html.css(cssSelector).extract_first()
+        data = html.css(cssSelector).get()
         if data is None:
             data = str('')
 
@@ -76,7 +76,7 @@ class Extractor:
     def images(response, cssSelector, isAbsolute=False, prefix=None) -> []:
         images = []
 
-        for index, href in enumerate(response.css(cssSelector).extract()):
+        for index, href in enumerate(response.css(cssSelector).getall()):
             if not isAbsolute:
                 parsed_uri = urlparse(response.url)
                 domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
@@ -91,7 +91,7 @@ class Extractor:
 
     @staticmethod
     def url(response, html, cssSelector) -> str:
-        path = html.css(cssSelector).extract_first()
+        path = html.css(cssSelector).get()
         parsed_uri = urlparse(response.url)
         domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
         return domain + path
