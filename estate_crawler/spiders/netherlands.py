@@ -10,74 +10,57 @@ from estate_crawler.util import Extractor, Structure
 
 class Domica(scrapy.Spider):
     name = 'domicaspider'
-    allowed_domains = ["www.domica.nl"]
+    allowed_domains = ['domica.nl', 'www.domica.nl', 'domicasoftware.nl', 'www.domicasoftware.nl']
 
     def __init__(self, queryRegion='Amersfoort'):
         self.region = queryRegion.title()
         self.start_urls = [
             (
-                'https://www.domica.nl/woningaanbod/huur/land-nederland/gemeente-{0}/type-appartement'
-                    .format(queryRegion)
+                f'https://domica.nl/huren/plaatsnaam-{queryRegion}'
             )
         ]
 
     def parse(self, response):
         pageSelector = Selector(response)
-        objects = pageSelector.css('.object_list_container .row.object')
-        objects.getall()
+        objects = pageSelector.css('.result-container .product-row').getall()
 
-        for index, object in enumerate(objects):
-            # Determine if the object is still available for rent
-            objectStatus = str(Extractor.string(object, '.object_status')).lower()
+        for _, object in enumerate(objects):
+            objectStatus = Extractor.string(object, '.images > .product-label').lower()
             if objectStatus == 'verhuurd':
                 continue
 
-            # Pass the availability from the overview, since it's listed in DD-MM-YYYY format on the overview page
-            objectAvailibility = str(Extractor.string(object, '.object_availability > span'))
-            meta = {'availability': objectAvailibility}
-
-            # Parse Path and send another request
-            object_url = Extractor.url(response, object, 'div.datacontainer > a::attr(href)')
-
-            yield scrapy.Request(object_url, self.parse_object, 'GET', None, None, None, meta)
+            rooms = Extractor.string(object, '.properties > .property')
+            object_url = Extractor.url(response, object, '.images a[rel="click"]::attr(href)')
+            yield scrapy.Request(object_url, self.parse_object, meta={'rooms': rooms})
 
     def parse_object(self, response):
-        address_heading = Extractor.string(response, '.address').split(',')
-        street = address_heading[0]
-        postcode_and_city = address_heading[1].split(' ')
-        city = postcode_and_city[(len(postcode_and_city) - 1)]
-
-        volume = Structure.find_in_definition(response, 'table.table-striped.feautures tr td',
-                                              'Gebruiksoppervlakte wonen')
-        if volume is not None and isinstance(volume, str):
+        page_selector = Selector(response=response)
+        street = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Straat')
+        city = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Plaatsnaam')
+        volume = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Oppervlakte')
+        type = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Type object')
+        price = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Kale huurprijs')
+        service_costs = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Servicekosten')
+        availability = Extractor.string(page_selector, '.availability strong')
+        if volume:
             volume = Extractor.volume(volume)
 
-        rooms = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Aantal kamers')
-        if rooms is not None and isinstance(rooms, str):
-            rooms = rooms.split(' (w')[0]
-
-        type = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Type object')
-        if type is not None and isinstance(type, str):
-            type = type.split(', ')
-            lastindex = (len(type) - 1)
-            type = type[lastindex]
-
-        price = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Prijs')
-        if price is not None and isinstance(type, str):
-            price = Extractor.euro(price.split('-')[0])
+        price = Extractor.euro(price)
+        if service_costs:
+            price = price + Extractor.euro(service_costs)
 
         yield {
             'street': street,
             'city': city,
             'region': self.region,
             'volume': volume,
-            'rooms': rooms,
-            'availability': response.meta['availability'],
+            'rooms': response.meta['rooms'],
+            'availability': availability,
             'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'Domica',
-            'images': Extractor.images(response, '#cycle-slideshow2 > a.gallery-link img::attr(estate_crawler)', True),
+            'images': Extractor.images(page_selector, 'a[data-fancybox="gallery"]::attr(href)', True),
         }
 
 
