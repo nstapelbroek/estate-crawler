@@ -7,6 +7,8 @@ from scrapy.selector import Selector
 from scrapy.http import FormRequest
 from estate_crawler.util import Extractor, Structure
 
+ignored_object_types = ['garagebox', 'berging/opslag', 'kantoorruimte', 'loods', 'parkeerplaats', 'winkelpand']
+ignored_object_statuses = ['verhuurd', 'in optie', 'onder optie']
 
 class Domica(scrapy.Spider):
     name = 'domicaspider'
@@ -21,12 +23,16 @@ class Domica(scrapy.Spider):
         ]
 
     def parse(self, response):
-        pageSelector = Selector(response)
-        objects = pageSelector.css('.result-container .product-row').getall()
+        page_selector = Selector(response)
+        objects = page_selector.css('.result-container .product-row').getall()
 
         for _, object in enumerate(objects):
-            objectStatus = Extractor.string(object, '.images > .product-label').lower()
-            if objectStatus == 'verhuurd':
+            object_status = Extractor.string(object, '.images > .product-label').lower()
+            if object_status in ignored_object_statuses:
+                continue
+
+            object_type = Structure.find_in_definition(object, '.more-info .info > *', 'Objecttype').lower()
+            if object_type in ignored_object_types:
                 continue
 
             rooms = Extractor.string(object, '.properties > .property')
@@ -96,14 +102,12 @@ class EenTweeDrieWonen(scrapy.Spider):
         objects.getall()
 
         for index, object in enumerate(objects):
-            # Determine if the object is still available for rent
-            objectStatus = str(Extractor.string(object, '.pand-status')).lower()
-            if objectStatus in ['verhuurd', 'in optie']:
+            object_status = str(Extractor.string(object, '.pand-status')).lower()
+            if object_status in ignored_object_statuses :
                 continue
 
-            # Skip crawling storage spaces and garages
             type = Structure.find_in_definition(object, '.pand-specs li > span', 'Type').lower()
-            if type in ['garagebox', 'berging/opslag', 'kantoorruimte', 'loods', 'parkeerplaats', 'winkelpand']:
+            if type in ignored_object_types:
                 continue
 
             yield scrapy.Request(
@@ -111,7 +115,6 @@ class EenTweeDrieWonen(scrapy.Spider):
                 self.parse_object
             )
 
-        # Crawl the next pages
         nextPageSelector = '.productBrowser a:contains("volgende")'
         nextPageLink = pageSelector.css(nextPageSelector).get()
         if nextPageLink is not None and isinstance(nextPageLink, str):
@@ -359,9 +362,8 @@ class VanderHulst(scrapy.Spider):
         objects.getall()
 
         for index, object in enumerate(objects):
-            # Determine if the object is still available for rent
-            objectStatus = str(Extractor.string(object, '.property-row-meta-item-status > strong')).lower()
-            if objectStatus in ['verhuurd', 'in optie', 'onder opti e']:
+            object_status = str(Extractor.string(object, '.property-row-meta-item-status > strong')).lower()
+            if object_status in ignored_object_statuses:
                 continue
 
             objectUrl = Extractor.string(object, 'a.property-row-image::attr(href)')
