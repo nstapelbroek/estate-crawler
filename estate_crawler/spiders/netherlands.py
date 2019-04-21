@@ -7,77 +7,66 @@ from scrapy.selector import Selector
 from scrapy.http import FormRequest
 from estate_crawler.util import Extractor, Structure
 
+ignored_object_types = ['garagebox', 'berging/opslag', 'kantoorruimte', 'loods', 'parkeerplaats', 'winkelpand']
+ignored_object_statuses = ['verhuurd', 'in optie', 'onder optie']
 
 class Domica(scrapy.Spider):
     name = 'domicaspider'
-    allowed_domains = ["www.domica.nl"]
+    allowed_domains = ['domica.nl', 'www.domica.nl', 'domicasoftware.nl', 'www.domicasoftware.nl']
 
     def __init__(self, queryRegion='Amersfoort'):
         self.region = queryRegion.title()
         self.start_urls = [
             (
-                'https://www.domica.nl/woningaanbod/huur/land-nederland/gemeente-{0}/type-appartement'
-                    .format(queryRegion)
+                f'https://domica.nl/huren/plaatsnaam-{queryRegion}'
             )
         ]
 
     def parse(self, response):
-        pageSelector = Selector(response)
-        objects = pageSelector.css('.object_list_container .row.object')
-        objects.getall()
+        page_selector = Selector(response)
+        objects = page_selector.css('.result-container .product-row').getall()
 
-        for index, object in enumerate(objects):
-            # Determine if the object is still available for rent
-            objectStatus = str(Extractor.string(object, '.object_status')).lower()
-            if objectStatus == 'verhuurd':
+        for _, object in enumerate(objects):
+            object_status = Extractor.string(object, '.images > .product-label').lower()
+            if object_status in ignored_object_statuses:
                 continue
 
-            # Pass the availability from the overview, since it's listed in DD-MM-YYYY format on the overview page
-            objectAvailibility = str(Extractor.string(object, '.object_availability > span'))
-            meta = {'availability': objectAvailibility}
+            object_type = Structure.find_in_definition(object, '.more-info .info > *', 'Objecttype').lower()
+            if object_type in ignored_object_types:
+                continue
 
-            # Parse Path and send another request
-            object_url = Extractor.url(response, object, 'div.datacontainer > a::attr(href)')
-
-            yield scrapy.Request(object_url, self.parse_object, 'GET', None, None, None, meta)
+            rooms = Extractor.string(object, '.properties > .property')
+            object_url = Extractor.url(response, object, '.images a[rel="click"]::attr(href)')
+            yield scrapy.Request(object_url, self.parse_object, meta={'rooms': rooms})
 
     def parse_object(self, response):
-        address_heading = Extractor.string(response, '.address').split(',')
-        street = address_heading[0]
-        postcode_and_city = address_heading[1].split(' ')
-        city = postcode_and_city[(len(postcode_and_city) - 1)]
-
-        volume = Structure.find_in_definition(response, 'table.table-striped.feautures tr td',
-                                              'Gebruiksoppervlakte wonen')
-        if volume is not None and isinstance(volume, str):
+        page_selector = Selector(response=response)
+        street = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Straat')
+        city = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Plaatsnaam')
+        volume = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Oppervlakte')
+        type = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Type object')
+        price = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Kale huurprijs')
+        service_costs = Structure.find_in_definition(page_selector, '.table-specs tr td', 'Servicekosten')
+        availability = Extractor.string(page_selector, '.availability strong')
+        if volume:
             volume = Extractor.volume(volume)
 
-        rooms = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Aantal kamers')
-        if rooms is not None and isinstance(rooms, str):
-            rooms = rooms.split(' (w')[0]
-
-        type = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Type object')
-        if type is not None and isinstance(type, str):
-            type = type.split(', ')
-            lastindex = (len(type) - 1)
-            type = type[lastindex]
-
-        price = Structure.find_in_definition(response, 'table.table-striped.feautures tr td', 'Prijs')
-        if price is not None and isinstance(type, str):
-            price = Extractor.euro(price.split('-')[0])
+        price = Extractor.euro(price)
+        if service_costs:
+            price = price + Extractor.euro(service_costs)
 
         yield {
             'street': street,
             'city': city,
             'region': self.region,
             'volume': volume,
-            'rooms': rooms,
-            'availability': response.meta['availability'],
+            'rooms': response.meta['rooms'],
+            'availability': availability,
             'type': type,
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'Domica',
-            'images': Extractor.images(response, '#cycle-slideshow2 > a.gallery-link img::attr(estate_crawler)', True),
+            'images': Extractor.images(page_selector, 'a[data-fancybox="gallery"]::attr(href)', True),
         }
 
 
@@ -113,14 +102,12 @@ class EenTweeDrieWonen(scrapy.Spider):
         objects.getall()
 
         for index, object in enumerate(objects):
-            # Determine if the object is still available for rent
-            objectStatus = str(Extractor.string(object, '.pand-status')).lower()
-            if objectStatus in ['verhuurd', 'in optie']:
+            object_status = str(Extractor.string(object, '.pand-status')).lower()
+            if object_status in ignored_object_statuses :
                 continue
 
-            # Skip crawling storage spaces and garages
             type = Structure.find_in_definition(object, '.pand-specs li > span', 'Type').lower()
-            if type in ['garagebox', 'berging/opslag', 'kantoorruimte', 'loods', 'parkeerplaats', 'winkelpand']:
+            if type in ignored_object_types:
                 continue
 
             yield scrapy.Request(
@@ -128,7 +115,6 @@ class EenTweeDrieWonen(scrapy.Spider):
                 self.parse_object
             )
 
-        # Crawl the next pages
         nextPageSelector = '.productBrowser a:contains("volgende")'
         nextPageLink = pageSelector.css(nextPageSelector).get()
         if nextPageLink is not None and isinstance(nextPageLink, str):
@@ -139,28 +125,29 @@ class EenTweeDrieWonen(scrapy.Spider):
             )
 
     def parse_object(self, response):
-        breadCrumbTitle = Extractor.string(response, 'a.active span').split(' - ')
+        page_selector = Selector(response=response)
+        breadCrumbTitle = Extractor.string(page_selector, 'a.active span').split(' - ')
         city = Extractor.string(breadCrumbTitle[0])
         breadCrumbTitle.pop(0)
         street = ' - '.join(breadCrumbTitle)
 
-        volume = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Woonoppervlakte')
+        volume = Structure.find_in_definition(page_selector, '.pand-specs.panddetail-desc li > span', 'Woonoppervlakte')
         if volume is not None and isinstance(volume, str):
             volume = Extractor.volume(volume)
 
-        rooms = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Kamers')
+        rooms = Structure.find_in_definition(page_selector, '.pand-specs.panddetail-desc li > span', 'Kamers')
         if rooms is not None and isinstance(rooms, str):
             Extractor.string(rooms)
 
-        type = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span', 'Type')
+        type = Structure.find_in_definition(page_selector, '.pand-specs.panddetail-desc li > span', 'Type')
         if type is not None and isinstance(type, str):
             Extractor.string(type)
 
-        price = Extractor.string(response, '.panddetail-price')
+        price = Extractor.string(page_selector, '.panddetail-price')
         price = price.split('-')[0]
         price = Extractor.euro(price)
 
-        availability = Structure.find_in_definition(response, '.pand-specs.panddetail-desc li > span',
+        availability = Structure.find_in_definition(page_selector, '.pand-specs.panddetail-desc li > span',
                                                     'Beschikbaarheid')
         if availability is not None and isinstance(type, str):
             availability = Extractor.string(availability)
@@ -176,7 +163,7 @@ class EenTweeDrieWonen(scrapy.Spider):
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': '123Wonen.nl',
-            'images': Extractor.images(response, 'a[data-fancybox="group1"]::attr(href)', True),
+            'images': Extractor.images(page_selector, 'a[data-fancybox="group1"]::attr(href)', True),
         }
 
 
@@ -226,11 +213,12 @@ class Eervast(scrapy.Spider):
             yield scrapy.Request(object_url, self.parse_object, 'GET', None, None, None, meta)
 
     def parse_object(self, response):
-        type = Structure.find_in_definition(response, '.house-info div', 'Type woning')
-        volume = Extractor.volume(Structure.find_in_definition(response, '.house-info div', 'Woonoppervlak'))
-        rooms = Structure.find_in_definition(response, '.house-info div', 'Aantal kamers')
-        price = Extractor.euro(response, '.house-info div:nth-child(2)')
-        availability = Structure.find_in_definition(response, '#tab-1 tr td', 'Aanvaarding')
+        page_selector = Selector(response=response)
+        type = Structure.find_in_definition(page_selector, '.house-info div', 'Type woning')
+        volume = Extractor.volume(Structure.find_in_definition(page_selector, '.house-info div', 'Woonoppervlak'))
+        rooms = Structure.find_in_definition(page_selector, '.house-info div', 'Aantal kamers')
+        price = Extractor.euro(page_selector, '.house-info div:nth-child(2)')
+        availability = Structure.find_in_definition(page_selector, '#tab-1 tr td', 'Aanvaarding')
 
         yield {
             'street': response.meta['street'],
@@ -243,7 +231,7 @@ class Eervast(scrapy.Spider):
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'Eervast',
-            'images': Extractor.images(response, '.tab-content > a.gallery::attr(href)', True),
+            'images': Extractor.images(page_selector, '.tab-content > a.gallery::attr(href)', True),
         }
 
 
@@ -265,24 +253,25 @@ class Nederwoon(scrapy.Spider):
             yield scrapy.Request(objectUrl, self.parse_object)
 
     def parse_object(self, response):
-        street = Extractor.string(response, 'h1.text-regular')
-        city = Extractor.string(response, '.col-md-8 .fixed-lh p.color-medium')
-        availability = Extractor.string(response, '.col-md-8 .horizontal-items ul li:last-child')
+        page_selector = Selector(response=response)
+        street = Extractor.string(page_selector, 'h1.text-regular')
+        city = Extractor.string(page_selector, '.col-md-8 .fixed-lh p.color-medium')
+        availability = Extractor.string(page_selector, '.col-md-8 .horizontal-items ul li:last-child')
 
         # Sometimes Nederwoon mistakenly adds the zip code in the city field, filter it out
         city = re.sub('\d{4}?\s*[a-zA-Z]{2}', '', city).replace(' ', '')
 
         rooms = Extractor.string(
-            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Aantal kamers')
+            Structure.find_in_definition(page_selector, '.table-striped.table-specs td', 'Aantal kamers')
         )
         price = Extractor.euro(
-            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Totale huur per maand', 2)
+            Structure.find_in_definition(page_selector, '.table-striped.table-specs td', 'Totale huur per maand', 2)
         )
         volume = Extractor.volume(
-            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Woonoppervlakte')
+            Structure.find_in_definition(page_selector, '.table-striped.table-specs td', 'Woonoppervlakte')
         )
         type = Extractor.string(
-            Structure.find_in_definition(response, '.table-striped.table-specs td', 'Soort woonruimte')
+            Structure.find_in_definition(page_selector, '.table-striped.table-specs td', 'Soort woonruimte')
         )
 
         yield {
@@ -296,7 +285,7 @@ class Nederwoon(scrapy.Spider):
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'NederWoon',
-            'images': Extractor.images(response, '.slider.slider-media > div img::attr(estate_crawler)'),
+            'images': Extractor.images(page_selector, '.slider.slider-media > div img::attr(estate_crawler)'),
         }
 
 
@@ -327,20 +316,21 @@ class Rotsvast(scrapy.Spider):
             yield scrapy.Request(objectUrl, self.parse_object, 'GET', None, None, None, meta)
 
     def parse_object(self, response):
+        page_selector = Selector(response=response)
         availability = Extractor.string(
-            Structure.find_in_definition(response, '#properties .row > .col-xs-6', 'Ingangsdatum')
+            Structure.find_in_definition(page_selector, '#properties .row > .col-xs-6', 'Ingangsdatum')
         )
         rooms = Extractor.string(
-            Structure.find_in_definition(response, '#properties .row > .col-xs-6', 'Aantal kamers')
+            Structure.find_in_definition(page_selector, '#properties .row > .col-xs-6', 'Aantal kamers')
         )
         price = Extractor.euro(
-            Structure.find_in_definition(response, '#properties .row > .col-xs-6', 'Totale huur').split('-')[0]
+            Structure.find_in_definition(page_selector, '#properties .row > .col-xs-6', 'Totale huur').split('-')[0]
         )
         volume = Extractor.volume(
-            Structure.find_in_definition(response, '#properties .row > .col-xs-6', 'Oppervlakte (ca.)')
+            Structure.find_in_definition(page_selector, '#properties .row > .col-xs-6', 'Oppervlakte (ca.)')
         )
         type = Extractor.string(
-            Structure.find_in_definition(response, '#properties .row > .col-xs-6', 'Soort')
+            Structure.find_in_definition(page_selector, '#properties .row > .col-xs-6', 'Soort')
         )
 
         yield {
@@ -354,7 +344,7 @@ class Rotsvast(scrapy.Spider):
             'pricePerMonth': price,
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'Rotsvast',
-            'images': Extractor.images(response, '.slider img::attr(estate_crawler)', True),
+            'images': Extractor.images(page_selector, '.slider img::attr(estate_crawler)', True),
         }
 
 
@@ -372,27 +362,27 @@ class VanderHulst(scrapy.Spider):
         objects.getall()
 
         for index, object in enumerate(objects):
-            # Determine if the object is still available for rent
-            objectStatus = str(Extractor.string(object, '.property-row-meta-item-status > strong')).lower()
-            if objectStatus in ['verhuurd', 'in optie', 'onder opti e']:
+            object_status = str(Extractor.string(object, '.property-row-meta-item-status > strong')).lower()
+            if object_status in ignored_object_statuses:
                 continue
 
             objectUrl = Extractor.string(object, 'a.property-row-image::attr(href)')
             yield scrapy.Request(objectUrl, self.parse_object)
 
     def parse_object(self, response):
+        page_selector = Selector(response=response)
         tableSelector = '.property-overview dl > *'
 
         yield {
-            'street': Extractor.string(response, 'h1.entry-title'),
-            'city': Extractor.string(Structure.find_in_definition(response, tableSelector, 'Plaats')).title(),
+            'street': Extractor.string(page_selector, 'h1.entry-title'),
+            'city': Extractor.string(Structure.find_in_definition(page_selector, tableSelector, 'Plaats')).title(),
             'region': self.region,
-            'volume': Extractor.volume(Structure.find_in_definition(response, tableSelector, 'Woonoppervlakte')),
-            'rooms': Extractor.string(Structure.find_in_definition(response, tableSelector, 'Kamers')),
-            'availability': Extractor.string(Structure.find_in_definition(response, tableSelector, 'Status')),
-            'type': Extractor.string(Structure.find_in_definition(response, tableSelector, 'Type')),
-            'pricePerMonth': Extractor.euro(Structure.find_in_definition(response, tableSelector, 'Prijs')),
+            'volume': Extractor.volume(Structure.find_in_definition(page_selector, tableSelector, 'Woonoppervlakte')),
+            'rooms': Extractor.string(Structure.find_in_definition(page_selector, tableSelector, 'Kamers')),
+            'availability': Extractor.string(Structure.find_in_definition(page_selector, tableSelector, 'Status')),
+            'type': Extractor.string(Structure.find_in_definition(page_selector, tableSelector, 'Type')),
+            'pricePerMonth': Extractor.euro(Structure.find_in_definition(page_selector, tableSelector, 'Prijs')),
             'reference': Extractor.urlWithoutQueryString(response),
             'estateAgent': 'Van der Hulst',
-            'images': Extractor.images(response, '.property-detail-gallery a::attr(href)', True),
+            'images': Extractor.images(page_selector, '.property-detail-gallery a::attr(href)', True),
         }

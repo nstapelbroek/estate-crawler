@@ -2,13 +2,11 @@
 import argparse
 from os import getenv
 from scrapy.utils.project import get_project_settings
-from scrapy.exceptions import NotSupported
 from twisted.internet import reactor, defer
 from scrapy.crawler import CrawlerRunner
 from scrapy.utils.log import configure_logging
 
-from estate_crawler.spiders.netherlands import Eervast, VanderHulst, Domica, Nederwoon, \
-    EenTweeDrieWonen, Rotsvast
+from estate_crawler.spiders.netherlands import *
 
 parser = argparse.ArgumentParser(description='Crawl estate agencies for real-estate objects.')
 parser.add_argument('-r', '--region', help='A comma separated string of regions to search', required=True)
