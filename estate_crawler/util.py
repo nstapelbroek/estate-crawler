@@ -7,9 +7,9 @@ from urllib.parse import urlparse
 
 class Structure:
     @staticmethod
-    def find_in_definition(html, targetElement, targetText, indexOffset = 1):
+    def find_in_definition(html, targetElement, targetText, indexOffset = 1) -> str:
         if not isinstance(html, Selector):
-            html = Selector(html)
+            html = Selector(text=html)
 
         matchedIndex = 'not found'
         elements = html.css(targetElement)
@@ -22,6 +22,8 @@ class Structure:
 
             if text.lower() == targetText.lower():
                 matchedIndex = index + indexOffset
+
+        return str('')
 
 
 class Extractor:
@@ -44,15 +46,12 @@ class Extractor:
 
     @staticmethod
     def string(html, cssSelector='*') -> str:
-        if isinstance(html, str):
-            return strip_markup(html).strip()
-
         if not isinstance(html, Selector):
-            html = Selector(html)
+            html = Selector(text=html)
 
         data = html.css(cssSelector).get()
         if data is None:
-            data = str('')
+            return str('')
 
         data = strip_markup(data)
         return data.strip()
@@ -91,7 +90,7 @@ class Extractor:
 
     @staticmethod
     def url(response, html, cssSelector) -> str:
-        path = html.css(cssSelector).get()
+        path = Extractor.string(html, cssSelector)
         parsed_uri = urlparse(response.url)
         domain = '{uri.scheme}://{uri.netloc}'.format(uri=parsed_uri)
         return domain + path
