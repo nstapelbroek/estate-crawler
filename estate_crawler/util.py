@@ -66,7 +66,7 @@ class Extractor:
 
         # If we created a string ending with a . append a zero so float conversion is predictable
         volume_string.strip()
-        if (volume_string.endswith('.')):
+        if volume_string.endswith('.') or not volume_string:
             volume_string += '0'
 
         return float(volume_string)
