@@ -10,8 +10,8 @@ from estate_crawler.spiders.netherlands import *
 
 parser = argparse.ArgumentParser(description="Crawl estate agencies for real-estate objects.")
 parser.add_argument("-r", "--region", help="A comma separated string of regions to search", required=True)
-parser.add_argument("-o", "--output-file", help="Location where the crawler will write jsonlines output", required=False)
-parser.add_argument("-a", "--output-api", help="HTTP url where the crawler will POST the results towards", required=False)
+parser.add_argument("-o", "--output-file", help="Set location of the output jsonlines file", required=False)
+parser.add_argument("-a", "--output-api", help="Set URL where results will be send via POST", required=False)
 args = parser.parse_args()
 
 # Setup settings
@@ -20,7 +20,10 @@ settings = get_project_settings()
 settings.set("BOT_NAME", "estate-crawler")
 settings.set(
     "USER_AGENT",
-    getenv("USER_AGENT", "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36"),
+    getenv(
+        "USER_AGENT",
+        "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.75 Safari/537.36",
+    ),
 )
 settings.set("CONCURRENT_REQUESTS", getenv("CONCURRENT_REQUESTS", "8"))
 settings.set("CONCURRENT_REQUESTS_PER_DOMAIN", getenv("CONCURRENT_REQUESTS_PER_DOMAIN", "3"))
@@ -41,10 +44,7 @@ def crawl(regionArgument):
     regions = regionArgument.split(",")
     for region in regions:
         for spider in spiders:
-            try:
-                yield runner.crawl(spider, queryRegion=region)
-            except NotSupported:
-                pass
+            yield runner.crawl(spider, query_region=region)
 
     reactor.stop()
 
