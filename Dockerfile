@@ -1,4 +1,4 @@
-FROM python:3-alpine AS base
+FROM python:3.7-alpine3.8 AS base
 RUN apk add --no-cache libxml2-dev libffi-dev gcc build-base libxslt-dev zlib-dev libffi-dev openssl-dev
 
 ENV PIP_NO_CACHE_DIR=false
@@ -26,6 +26,10 @@ VOLUME buid
 FROM test-base AS Check
 RUN safety check
 RUN pipenv check
+
+# CodeStyle is a "public" stage that checks the codestyle of the application
+FROM test-base AS CodeStyle
+RUN black ./ --line-length 120 --check --diff
 
 # The final release
 FROM release As Prod
