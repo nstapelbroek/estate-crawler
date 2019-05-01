@@ -31,7 +31,7 @@ settings.set("FEED_FORMAT", getenv("FEED_FORMAT", "jsonlines"))
 settings.set("FEED_URI", (args.output_file if args.output_file else "build/result.json"))
 
 if args.output_api:
-    settings.set("ITEM_PIPELINES", {"scrapper.pipeline.api.Api": 300})
+    settings.set("ITEM_PIPELINES", {"estate_crawler.pipeline.api.Json": 300})
     settings.set("SCRAPPER_API_URL", args.output_api)
 
 # Runtime

@@ -1,7 +1,7 @@
 import requests
 
 
-class Api(object):
+class Json(object):
     def process_item(self, item, spider):
         settings = spider.settings
         apiUrl = settings.get("SCRAPPER_API_URL")
