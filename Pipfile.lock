@@ -248,11 +248,11 @@
         },
         "scrapy": {
             "hashes": [
-                "sha256:4ec03552c9aed1e82a376488150e904e0213bdee3ca140225105e9b03d0de204",
-                "sha256:558dfd10ac53cb324ecd7eefd3eac412161c7507c082b01b0bcd2c6e2e9f0766"
+                "sha256:1d2b2672049c3e7ebcab9736bbf759ec32d4cbf598292067737806453c208f95",
+                "sha256:fe5a40177960e97d42d1c752a73edb40f76a85a24076dec8535cffa499eb08c8"
             ],
             "index": "pypi",
-            "version": "==1.6.0"
+            "version": "==1.7.3"
         },
         "service-identity": {
             "hashes": [
@@ -290,7 +290,7 @@
                 "sha256:f4f0af14d288140ecb00861a3bd1e0b94ffdc63057cc1abe8b9dc84f6b6dcf18",
                 "sha256:f985f31e3244d18610816b55becf8fbf445c8e30fe0731500cadaf19f296baf0"
             ],
-            "index": "pypi",
+            "markers": "python_version != '3.4'",
             "version": "==19.7.0"
         },
         "urllib3": {
