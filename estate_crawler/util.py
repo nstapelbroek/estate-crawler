@@ -7,12 +7,12 @@ from urllib.parse import urlparse
 
 class Structure:
     @staticmethod
-    def find_in_definition(html, targetElement, targetText, indexOffset=1) -> str:
+    def find_in_definition(html, target_element, target_text, index_offset=1) -> str:
         if not isinstance(html, Selector):
             html = Selector(text=html)
 
         matchedIndex = "not found"
-        elements = html.css(targetElement)
+        elements = html.css(target_element)
         elements.getall()
 
         for index, element in enumerate(elements):
@@ -20,16 +20,16 @@ class Structure:
             if index == matchedIndex:
                 return text
 
-            if text.lower() == targetText.lower():
-                matchedIndex = index + indexOffset
+            if text.lower() == target_text.lower():
+                matchedIndex = index + index_offset
 
         return str("")
 
 
 class Extractor:
     @staticmethod
-    def euro(html, cssSelector="*") -> float:
-        data = Extractor.string(html, cssSelector)
+    def euro(html, css_selector="*") -> float:
+        data = Extractor.string(html, css_selector)
 
         # Flip dot and comma, remove euro sign
         data = data.replace(".", "").replace(",", ".").replace("€", "")
@@ -45,11 +45,11 @@ class Extractor:
         return float(data)
 
     @staticmethod
-    def string(html, cssSelector="*") -> str:
+    def string(html, css_selector="*") -> str:
         if not isinstance(html, Selector):
             html = Selector(text=html)
 
-        data = html.css(cssSelector).get()
+        data = html.css(css_selector).get()
         if data is None:
             return str("")
 
@@ -57,8 +57,8 @@ class Extractor:
         return data.strip()
 
     @staticmethod
-    def volume(html, cssSelector="*") -> float:
-        string = Extractor.string(html, cssSelector)
+    def volume(html, css_selector="*") -> float:
+        string = Extractor.string(html, css_selector)
 
         # Flip dot and comma, remove square meters from string
         volume_string = string.split("m")[0]
@@ -72,10 +72,10 @@ class Extractor:
         return float(volume_string)
 
     @staticmethod
-    def images(response, cssSelector, prefix=None) -> []:
+    def images(response, css_selector, prefix=None) -> []:
         images = []
 
-        for index, href in enumerate(response.css(cssSelector).getall()):
+        for index, href in enumerate(response.css(css_selector).getall()):
             if isinstance(prefix, str):
                 href = prefix + href
 
@@ -84,8 +84,8 @@ class Extractor:
         return images
 
     @staticmethod
-    def url(response, html, cssSelector) -> str:
-        path = Extractor.string(html, cssSelector)
+    def url(response, html, css_selector) -> str:
+        path = Extractor.string(html, css_selector)
         parsed_uri = urlparse(response.url)
         domain = "{uri.scheme}://{uri.netloc}".format(uri=parsed_uri)
         return domain + path
