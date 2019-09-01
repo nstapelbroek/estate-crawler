@@ -1,6 +1,7 @@
 # coding=utf-8
 import re
 from abc import ABC
+from urllib.parse import urlparse
 
 import scrapy
 
@@ -75,7 +76,7 @@ class Domica(Spider):
             "pricePerMonth": price,
             "reference": Extractor.urlWithoutQueryString(response),
             "estateAgent": "Domica",
-            "images": Extractor.images(page_selector, 'a[data-fancybox="gallery"]::attr(href)', True),
+            "images": Extractor.images(page_selector, 'a[data-fancybox="gallery"]::attr(href)'),
         }
 
 
@@ -147,7 +148,7 @@ class EenTweeDrieWonen(Spider):
             "pricePerMonth": price,
             "reference": Extractor.urlWithoutQueryString(response),
             "estateAgent": "123Wonen.nl",
-            "images": Extractor.images(page_selector, 'a[data-fancybox="group1"]::attr(href)', True),
+            "images": Extractor.images(page_selector, 'a[data-fancybox="group1"]::attr(href)'),
         }
 
 
@@ -208,7 +209,7 @@ class Eervast(Spider):
             "pricePerMonth": price,
             "reference": Extractor.urlWithoutQueryString(response),
             "estateAgent": "Eervast",
-            "images": Extractor.images(page_selector, ".tab-content > a.gallery::attr(href)", True),
+            "images": Extractor.images(page_selector, ".tab-content > a.gallery::attr(href)"),
         }
 
 
@@ -237,6 +238,10 @@ class Nederwoon(Spider):
         # Sometimes Nederwoon mistakenly adds the zip code in the city field, filter it out
         city = re.sub(r"\d{4}?\s*[a-zA-Z]{2}", "", city).replace(" ", "")
 
+        # Images have relative urls, calculate the domain from the current response
+        parsed_uri = urlparse(response.url)
+        image_prefix = "{uri.scheme}://{uri.netloc}".format(uri=parsed_uri)
+
         specs_selector = ".table-striped.table-specs td"
         rooms = Extractor.string(Structure.find_in_definition(page_selector, specs_selector, "Aantal kamers"))
         price = Extractor.euro(Structure.find_in_definition(page_selector, specs_selector, "Totale huur per maand", 2))
@@ -256,7 +261,7 @@ class Nederwoon(Spider):
             "pricePerMonth": price,
             "reference": Extractor.urlWithoutQueryString(response),
             "estateAgent": "NederWoon",
-            "images": Extractor.images(page_selector, ".slider.slider-media > div img::attr(estate_crawler)"),
+            "images": Extractor.images(page_selector, ".slider.slider-media > div img::attr(src)", prefix=image_prefix),
         }
 
 
@@ -305,7 +310,7 @@ class Rotsvast(Spider):
             "pricePerMonth": price,
             "reference": Extractor.urlWithoutQueryString(response),
             "estateAgent": "Rotsvast",
-            "images": Extractor.images(page_selector, ".slider img::attr(estate_crawler)", True),
+            "images": Extractor.images(page_selector, ".slider img::attr(src)"),
         }
 
 
@@ -344,5 +349,5 @@ class VanderHulst(Spider):
             "pricePerMonth": Extractor.euro(Structure.find_in_definition(page_selector, table_selector, "Prijs")),
             "reference": Extractor.urlWithoutQueryString(response),
             "estateAgent": "Van der Hulst",
-            "images": Extractor.images(page_selector, ".property-detail-gallery a::attr(href)", True),
+            "images": Extractor.images(page_selector, ".property-detail-gallery a::attr(href)"),
         }

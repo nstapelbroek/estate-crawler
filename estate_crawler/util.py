@@ -72,15 +72,10 @@ class Extractor:
         return float(volume_string)
 
     @staticmethod
-    def images(response, cssSelector, isAbsolute=False, prefix=None) -> []:
+    def images(response, cssSelector, prefix=None) -> []:
         images = []
 
         for index, href in enumerate(response.css(cssSelector).getall()):
-            if not isAbsolute:
-                parsed_uri = urlparse(response.url)
-                domain = "{uri.scheme}://{uri.netloc}".format(uri=parsed_uri)
-                href = domain + href
-
             if isinstance(prefix, str):
                 href = prefix + href
 
