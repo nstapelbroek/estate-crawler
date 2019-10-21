@@ -10,7 +10,7 @@ from scrapy.http import FormRequest
 from estate_crawler.util import Extractor, Structure
 
 ignored_object_types = ["garagebox", "berging/opslag", "kantoorruimte", "loods", "parkeerplaats", "winkelpand"]
-ignored_object_statuses = ["verhuurd", "in optie", "onder optie"]
+ignored_object_statuses = ["verhuurd", "optie", "in optie", "onder optie"]
 
 
 class Spider(scrapy.Spider, ABC):
