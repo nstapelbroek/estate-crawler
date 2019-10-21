@@ -39,7 +39,7 @@ class Extractor:
         data = words[0]
 
         # If we created a string ending with a . append a zero so float conversion is predictable
-        if data.endswith("."):
+        if data.endswith(".") or not data:
             data += "0"
 
         return float(data)
