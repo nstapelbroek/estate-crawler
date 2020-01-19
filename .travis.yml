@@ -17,7 +17,7 @@ jobs:
       if: branch = latest AND type != pull_request
       install: make validate
       script: docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build nstapelbroek/estate-crawler --region amsterdam
-      after_success:  docker login -u="nstapelbroekbot" -p="$DOCKERHUB_PASSWORD" && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
+      after_success:  printenv | docker login --username nstapelbroekbot --password-stdin && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
 
     - stage: Test run
       script:
