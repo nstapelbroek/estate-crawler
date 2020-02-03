@@ -132,10 +132,10 @@
         },
         "htmllaundry": {
             "hashes": [
-                "sha256:d10d84be703acb54b3ff75bfd904c8cada729b3e3a75775bae51f1ae27bbeb16"
+                "sha256:9124f067d3c06ef2613e2cc246b2fde2299802280a8b0e60dc504137085f0334"
             ],
             "index": "pypi",
-            "version": "==2.1"
+            "version": "==2.2"
         },
         "hyperlink": {
             "hashes": [
