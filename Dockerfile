@@ -1,8 +1,8 @@
 FROM python:3.7-alpine3.8 AS base
 RUN apk add --no-cache libxml2-dev libffi-dev gcc build-base libxslt-dev zlib-dev libffi-dev openssl-dev
 
-ENV PIP_NO_CACHE_DIR=false
-RUN pip install pipenv==2018.11.26
+ENV PIP_NO_CACHE_DIR=off
+RUN pip install --upgrade pip && python -m pip install https://github.com/pypa/pipenv/archive/7745e51a63cbd17c7ba9ef9f75ec974f8b5543d1.tar.gz
 
 WORKDIR /app
 COPY Pipfile /app/
