@@ -2,7 +2,7 @@ sudo: false
 
 language: python
 
-install: pip install --upgrade pip && python -m pip install https://github.com/pypa/pipenv/archive/7745e51a63cbd17c7ba9ef9f75ec974f8b5543d1.tar.gz
+install: pipenv install --dev
 
 services:
   - docker
