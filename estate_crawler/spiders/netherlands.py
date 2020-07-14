@@ -10,7 +10,7 @@ from scrapy.http import FormRequest
 from estate_crawler.util import Extractor, Structure
 
 ignored_object_types = ["garagebox", "berging/opslag", "kantoorruimte", "loods", "parkeerplaats", "winkelpand"]
-ignored_object_statuses = ["verhuurd", "optie", "in optie", "onder optie"]
+ignored_object_statuses = ["verhuurd", "optie", "in optie", "onder optie", "bezichtiging vol"]
 
 
 class Spider(scrapy.Spider, ABC):
@@ -279,6 +279,10 @@ class Rotsvast(Spider):
         objects = page_selector.css(".residence-list.clickable-parent").getall()
 
         for _, estate_object in enumerate(objects):
+            object_status = str(Extractor.string(estate_object, ".residence-image .status")).lower()
+            if object_status in ignored_object_statuses:
+                continue
+
             object_url = Extractor.string(estate_object, "a.clickable-block::attr(href)")
 
             # Extracting the street is a lot easier in the overview page, so we'll pass it into the meta
