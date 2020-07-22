@@ -25,7 +25,7 @@ VOLUME buid
 # Check is a "public" stage ensuring that language dependencies are safe
 FROM test-base AS Check
 RUN safety check
-RUN pipenv check
+RUN pipenv check --system
 
 # CodeStyle is a "public" stage that checks the codestyle of the application
 FROM test-base AS CodeStyle
