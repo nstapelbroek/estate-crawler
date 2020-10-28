@@ -17,4 +17,4 @@ safety = "*"
 black = "==19.10b0" # https://github.com/psf/black/issues/517#issuecomment-573125735
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"

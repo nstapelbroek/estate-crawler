@@ -1,4 +1,4 @@
-FROM python:3.7-alpine3.8 AS base
+FROM python:3.9-alpine3.12 AS base
 RUN apk add --no-cache libxml2-dev libffi-dev gcc build-base libxslt-dev zlib-dev libffi-dev openssl-dev
 
 ENV PIP_NO_CACHE_DIR=off
