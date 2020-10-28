@@ -1,4 +1,4 @@
-dist: focal
+dist: bionic
 
 language: python
 
@@ -12,15 +12,18 @@ services:
 jobs:
   include:
     - stage: Build, Test and Publish
+      name: Testrun crawler
       script: pipenv run ./crawler.py --region Utrecht
 
     - stage: Build, Test and Publish
+      name: Build image
       if: type = pull_request
       install: docker pull nstapelbroek/estate-crawler:latest
       script: make validate-pr
 
     - stage: Build, Test and Publish
+      name: Build and publish image
       if: branch = latest AND type != pull_request
-      install: make validate
-      script: docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build nstapelbroek/estate-crawler --region amsterdam
+      install: docker pull nstapelbroek/estate-crawler:latest
+      script: make validate
       after_success:  printenv DOCKERHUB_PASSWORD | docker login --username nstapelbroekbot --password-stdin && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
