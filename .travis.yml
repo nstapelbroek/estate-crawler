@@ -1,31 +1,32 @@
-sudo: false
+dist: bionic
 
 language: python
+
+python: '3.9'
 
 install: pipenv install --dev
 
 services:
   - docker
 
+# By default, we build only on pushes to master or Pull Requests
+if: type != push OR branch = latest
+
 jobs:
   include:
-    - stage: Build image
+    - stage: Build, Test and Publish
+      name: Testrun crawler
+      script: pipenv run ./crawler.py --region Utrecht
+
+    - stage: Build, Test and Publish
+      name: Build image
       if: type = pull_request
       install: docker pull nstapelbroek/estate-crawler:latest
       script: make validate-pr
-    - stage: Build and publish image
-      if: branch = latest AND type != pull_request
-      install: make validate
-      script: docker run --rm -it --name my-crawler-instance -v $(pwd):/app/build nstapelbroek/estate-crawler --region amsterdam
-      after_success:  printenv DOCKERHUB_PASSWORD | docker login --username nstapelbroekbot --password-stdin && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
 
-    - stage: Test run
-      script:
-        - pipenv run ./crawler.py --region Utrecht
-      python: '3.6'
-    - stage: Test run
-      script:
-        - pipenv run ./crawler.py --region Utrecht
-      python: '3.7'
-      dist: xenial
-      sudo: true
+    - stage: Build, Test and Publish
+      name: Build and publish image
+      if: branch = latest AND type != pull_request
+      install: docker pull nstapelbroek/estate-crawler:latest
+      script: make validate
+      after_success:  printenv DOCKERHUB_PASSWORD | docker login --username nstapelbroekbot --password-stdin && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
