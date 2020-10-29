@@ -9,6 +9,9 @@ install: pipenv install --dev
 services:
   - docker
 
+# By default, we build only on pushes to master or Pull Requests
+if: type != push OR branch = latest
+
 jobs:
   include:
     - stage: Build, Test and Publish
