@@ -8,7 +8,7 @@ scrapy = "*"
 configobj = "*"
 htmllaundry = "*"
 requests = "*"
-attrs = {version = ">=17.4,<20.3"}
+attrs = {version = ">=17.4,<20.4"}
 
 [dev-packages]
 pytest = "*"
