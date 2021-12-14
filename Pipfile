@@ -14,7 +14,7 @@ attrs = {version = ">=17.4,<21.3"}
 pytest = "*"
 pytest-black = "*"
 safety = "*"
-black = "==19.10b0" # https://github.com/psf/black/issues/517#issuecomment-573125735
+black = "==21.12b0" # https://github.com/psf/black/issues/517#issuecomment-573125735
 
 [requires]
 python_version = "3.9"
