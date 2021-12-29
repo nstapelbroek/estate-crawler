@@ -79,7 +79,7 @@ class VBTVerhuurmakelaar(Spider):
             "pricePerMonth": pricing_info.get("price"),
             "reference": house.get("source", {}).get("externalLink"),
             "estateAgent": "VB&T Verhuurmakelaars",
-            "images": [f"https://vbtverhuurmakelaars.nl{image}" for image in house.get("media", [])],
+            "images": [f"https://vbtverhuurmakelaars.nl{media_path}" for media_path in house.get("media", [])],
         }
 
 
