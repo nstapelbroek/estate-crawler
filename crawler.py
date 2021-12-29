@@ -40,7 +40,7 @@ runner = CrawlerRunner(settings)
 
 @defer.inlineCallbacks
 def crawl(regionArgument):
-    spiders = [Eervast, VanderHulst, Domica, Nederwoon, EenTweeDrieWonen, Rotsvast]
+    spiders = [Eervast, VanderHulst, Domica, Nederwoon, EenTweeDrieWonen, Rotsvast, VBTVerhuurmakelaar]
     regions = regionArgument.split(",")
     for region in regions:
         for spider in spiders:
