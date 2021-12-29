@@ -6,11 +6,14 @@ from urllib.parse import urlparse
 import scrapy
 
 from scrapy.selector import Selector
-from scrapy.http import FormRequest
+from scrapy.http import FormRequest, JsonRequest
 from estate_crawler.util import Extractor, Structure
 
 ignored_object_types = ["garagebox", "berging/opslag", "kantoorruimte", "loods", "parkeerplaats", "winkelpand"]
-ignored_object_statuses = ["verhuurd", "optie", "in optie", "onder optie", "bezichtiging vol"]
+ignored_object_statuses = [
+    "verhuurd", "optie", "in optie", "onder optie", "bezichtiging vol",
+    "rentinuse", "rentreserved", "option"
+]
 
 
 class Spider(scrapy.Spider, ABC):
@@ -21,6 +24,63 @@ class Spider(scrapy.Spider, ABC):
     def __init__(self, query_region="Amersfoort"):
         super().__init__()
         self.query_region = query_region.title()
+
+
+class VBTVerhuurmakelaar(Spider):
+    name = "vb&tspider"
+    allowed_domains = ["vbtverhuurmakelaars.nl", "www.vbtverhuurmakelaars.nl"]
+
+    def start_requests(self):
+        # vbtverhuurmakelaars.nl crawl starts with a POST request with some filter options
+        json_payload = {"limit": 100, "filter": {"city": self.query_region, "radius": 10}}
+        return [
+            JsonRequest("https://vbtverhuurmakelaars.nl/api/properties/search", data=json_payload, callback=self.parse)
+        ]
+
+    def parse(self, response, **kwargs):
+        houses = response.json().get("houses", [])
+
+        for house in houses:
+            object_status = house.get("status", {}).get("name", "unknown")
+            object_category = house.get("prices", {}).get("category", "unknown")
+            if object_status in ignored_object_statuses or object_category != "rent":
+                continue
+
+            # There are more images and details available on the subsequent API call, the JS code calls this:
+            # /api/property/${e.slug}. The slug for us is the last segment of the url property
+            slug = house.get("url", "unknown").rsplit("/")[-1]
+            if slug == "unknown":
+                continue
+
+            yield scrapy.Request(
+                f"https://vbtverhuurmakelaars.nl/api/property/{slug}",
+                self.parse_object,
+                meta={"rooms": house.get("rooms")} # rooms is somehow lacking on the detailed api endpoint
+            )
+
+    def parse_object(self, response):
+        house = response.json().get("house", {})
+        if not house:
+            return
+
+        # We can assume it"s available and a rental here, as this is filtered in self.parse()
+        address_info = house.get("address")
+        pricing_info = house.get("prices", {}).get("rental", {})
+        details_info = house.get("details", {})
+
+        yield {
+            "street": address_info.get("streetName"),
+            "city": address_info.get("city"),
+            "region": self.query_region,
+            "volume": details_info.get("surfacesAndCapacity",{}).get("livingArea", {}).get("value"),
+            "rooms": response.meta["rooms"],
+            "availability": details_info.get("general", {}).get("acceptance", {}).get("value"),
+            "type": details_info.get("build", {}).get("objectType"),
+            "pricePerMonth": pricing_info.get("price"),
+            "reference": house.get("source", {}).get("externalLink"),
+            "estateAgent": "VB&T Verhuurmakelaars",
+            "images": [f"https://vbtverhuurmakelaars.nl{image}" for image in house.get("media", [])],
+        }
 
 
 class Domica(Spider):
