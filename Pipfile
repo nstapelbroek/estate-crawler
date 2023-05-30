@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-scrapy = ">= 2.8.0"
+scrapy = ">= 2.9.0"
 configobj = ">= 5.0.8"
 htmllaundry = "*"
 requests = "*"
