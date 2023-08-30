@@ -49,9 +49,12 @@ class Extractor:
         if not isinstance(html, Selector):
             html = Selector(text=html)
 
-        data = html.css(css_selector).get()
+        data = html.css(css_selector).get() if html.type == 'html' else html.get()
         if data is None:
             return str("")
+
+        if isinstance(data, int):
+            data = str(data)
 
         data = strip_markup(data)
         return data.strip()
