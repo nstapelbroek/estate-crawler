@@ -4,10 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-scrapy = ">= 2.9.0"
-configobj = ">= 5.0.8"
-htmllaundry = "*"
-requests = "*"
+scrapy = "2.10.1"
+configobj = "5.0.8"
 
 [dev-packages]
 pytest = "*"
@@ -16,4 +14,4 @@ safety = "*"
 black = "*"
 
 [requires]
-python_version = "3.9"
+python_version = "3.11"
