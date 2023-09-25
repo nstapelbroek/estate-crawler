@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-scrapy = "2.10.1"
+scrapy = "2.11.0"
 configobj = "5.0.8"
 
 [dev-packages]
