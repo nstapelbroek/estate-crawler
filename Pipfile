@@ -8,7 +8,7 @@ scrapy = "2.11.0"
 configobj = "5.0.8"
 
 [dev-packages]
-safety = "2.3.5"
+safety = "3.0.1"
 black = "*"
 
 [requires]
