@@ -22,7 +22,7 @@ settings.set(
     "USER_AGENT",
     getenv(
         "USER_AGENT",
-        "Mozilla/5.0 (Windows NT 10.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36",
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
     ),
 )
 settings.set("CONCURRENT_REQUESTS", getenv("CONCURRENT_REQUESTS", "8"))

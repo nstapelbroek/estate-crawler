@@ -1,7 +1,7 @@
 # coding=utf-8
 from scrapy.selector import Selector
 from scrapy.http.response.html import HtmlResponse
-from htmllaundry import strip_markup
+from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
 
@@ -56,8 +56,8 @@ class Extractor:
         if isinstance(data, int):
             data = str(data)
 
-        data = strip_markup(data)
-        return data.strip()
+        soup = BeautifulSoup(data, 'html.parser')
+        return soup.get_text()
 
     @staticmethod
     def volume(html, css_selector="*") -> float:
