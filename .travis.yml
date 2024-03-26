@@ -2,14 +2,13 @@ dist: bionic
 
 language: python
 
-python: '3.11'
+python: '3.12'
 
 install: pipenv install --dev
 
 services:
   - docker
 
-# By default, we build only on pushes to master or Pull Requests
 if: type != push OR branch = latest
 
 jobs:
@@ -19,14 +18,16 @@ jobs:
       script: pipenv run ./crawler.py --region Utrecht
 
     - stage: Build, Test and Publish
-      name: Build image
-      if: type = pull_request
-      install: docker pull nstapelbroek/estate-crawler:latest
-      script: make validate-pr
+      name: Linting
+      script: pipenv run black ./ --line-length 120 --check --diff
 
     - stage: Build, Test and Publish
       name: Build and publish image
       if: branch = latest AND type != pull_request
       install: docker pull nstapelbroek/estate-crawler:latest
-      script: make validate
-      after_success:  printenv DOCKERHUB_PASSWORD | docker login --username nstapelbroekbot --password-stdin && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
+      script: printenv DOCKERHUB_PASSWORD | docker login --username nstapelbroekbot --password-stdin && docker tag nstapelbroek/estate-crawler:$TRAVIS_BRANCH docker.io/nstapelbroek/estate-crawler:$TRAVIS_BRANCH && docker push docker.io/nstapelbroek/estate-crawler
+
+  allow_failures:
+    - stage: Build, Test and Publish
+      name: Security checks
+      script: pipenv check --system

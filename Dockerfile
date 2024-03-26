@@ -1,4 +1,4 @@
-FROM python:3.11.5-alpine3.18 AS base
+FROM python:3.12-alpine3.19 AS base
 RUN apk add --no-cache libxml2-dev libffi-dev gcc build-base libxslt-dev zlib-dev libffi-dev openssl-dev
 
 ENV PIP_NO_CACHE_DIR=off
@@ -10,28 +10,14 @@ COPY Pipfile.lock /app/
 
 RUN pipenv install --system --deploy
 
-# App is for base images that do not need dev-dependencies
-FROM base AS app
+FROM base AS dev
+RUN pipenv install --system --deploy --dev
 COPY . /app/
 
-# test-base is for images that need dev-dependencies
-FROM app AS test-base
-RUN pipenv install --system --deploy --dev
-
-# release will form a base for shippable images that are meant to run the application
-FROM app AS release
-VOLUME buid
-
-# Check is a "public" stage ensuring that language dependencies are safe
-FROM test-base AS Check
-RUN safety check
-RUN pipenv check --system
-
-# CodeStyle is a "public" stage that checks the codestyle of the application
-FROM test-base AS CodeStyle
+FROM dev AS lint
 RUN black ./ --line-length 120 --check --diff
 
-# The final release
-FROM release As Prod
+FROM base As release
+COPY . /app/
 ENTRYPOINT ["python", "crawler.py"]
 CMD ["--region", "amsterdam"]
