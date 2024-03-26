@@ -4,12 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-scrapy = "2.11.1"
-configobj = "5.0.8"
+scrapy = ">= 2.11.1"
+configobj = ">= 5.0.8"
+beautifulsoup4 = ">= 4.12.3"
 
 [dev-packages]
-safety = "3.0.1"
-black = "*"
+black = ">= 24.3.0"
 
 [requires]
-python_version = "3.11"
+python_version = "3.12"
